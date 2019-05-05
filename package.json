@@ -1,0 +1,40 @@
+{
+  "name": "clumsy_bird_read",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "test": "jest"
+  },
+  "dependencies": {
+    "buffer": "^5.2.1",
+    "cheerio": "^0.22.0",
+    "events": "^3.0.0",
+    "react": "16.8.3",
+    "react-native": "0.59.3",
+    "react-native-flexi-radio-button": "^0.2.2",
+    "react-native-gesture-handler": "^1.1.0",
+    "react-native-htmlview": "^0.13.0",
+    "react-native-image-zoom-viewer": "^2.2.25",
+    "react-native-swiper": "^1.5.14",
+    "react-native-vector-icons": "^6.4.2",
+    "react-navigation": "^3.6.1",
+    "react-navigation-redux-helpers": "^3.0.0",
+    "react-redux": "^7.0.1",
+    "redux": "^4.0.1",
+    "redux-devtools": "^3.5.0",
+    "redux-thunk": "^2.3.0",
+    "stream": "0.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.3",
+    "@babel/runtime": "^7.4.3",
+    "babel-jest": "^24.7.1",
+    "jest": "^24.7.1",
+    "metro-react-native-babel-preset": "^0.53.1",
+    "react-test-renderer": "16.8.3"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
