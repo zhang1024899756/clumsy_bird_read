@@ -76,6 +76,11 @@ export default class TitleBar extends Component{
                 {type == "Login" ? <View style={styles.bookchapter}>
                     {this._goBack()}
                 </View> : null }
+
+                {type == "Logup" ? <View style={styles.bookchapter}>
+                    {this._goBack()}
+                    <Text>注册</Text>
+                </View> : null }
             </View>
         );
     }

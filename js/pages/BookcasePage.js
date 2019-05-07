@@ -28,7 +28,8 @@ export default class BookcasePage extends Component {
     _keyExtractor = (item, index) => item.bid;
 
     _toBookCity = () => {
-        this.props.navigation.push("")
+        console.log("_toBookCity")
+        NavigationUtil.restToRootPage(this.props)
     }
 
     render() {
@@ -81,9 +82,6 @@ export default class BookcasePage extends Component {
                                 }
                             }}
                         />
-                        <TouchableOpacity onPress={() => NavigationUtil.restToHomePage(this.props)}>
-                            <Text>按钮</Text>
-                        </TouchableOpacity>
                     </ScrollView>
                 }
             </View>

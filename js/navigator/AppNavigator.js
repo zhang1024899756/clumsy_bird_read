@@ -11,6 +11,7 @@ import HomePage from '../pages/HomePage';
 import DetailPage from '../pages/DetailPage';
 import BookChapter from '../pages/BookChapter';
 import ReadPage from '../pages/ReadPage';
+import LogupPage from '../pages/LogupPage';
 import LoginPage from '../pages/LoginPage';
 import ThemeColor from '../pages/ThemeColor';
 import ChoiceSource from '../pages/ChoiceSource';
@@ -54,6 +55,12 @@ const MainNavigator = createStackNavigator({
     },
     LoginPage: {
         screen: LoginPage,
+        navigationOptions: {
+            header: null,
+        }
+    },
+    LogupPage: {
+        screen: LogupPage,
         navigationOptions: {
             header: null,
         }

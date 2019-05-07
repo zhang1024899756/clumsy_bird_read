@@ -1,6 +1,9 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native';
+import {StyleSheet, Text, View, Image, TextInput, TouchableOpacity, AsyncStorage } from 'react-native';
 import TitleBar from "../componenets/TitleBar";
+import NavigationUtil from "../navigator/NavigationUtil";
+import URL from "../../serverAPI";
+import Toast from "react-native-easy-toast";
 
 
 export default class LoginPage extends Component {
@@ -12,8 +15,40 @@ export default class LoginPage extends Component {
         }
     }
     _submitForm = () => {
-        
+        if (this.state.username !== '' && this.state.password !== '') {
+            fetch(URL.check,this.getOptions({
+                username: this.state.username,
+                password: this.state.password,
+            }))
+            .then((response) => response.json())
+            .then(data => {
+                if (data.success) {
+                    AsyncStorage.setItem("userToken",data.data._id);
+                    this.props.navigation.goBack()
+                }else {
+                    this.refs.toast.show(data.data);
+                }
+            })
+        }
     }
+
+    getOptions(data) {
+        return {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        }
+    }
+
+    _toLogupPage = () => {
+        NavigationUtil.goToPageWithName({
+            navigation: this.props.navigation,
+        },"LogupPage");
+    }
+
     render() {
         return (
             <View style={styles.container}>
@@ -25,6 +60,7 @@ export default class LoginPage extends Component {
                     style={styles.inputView}
                     onChangeText={(text) => {this.setState({username:text})}}
                     value={this.state.username}
+                    autoCapitalize={"none"}
                     placeholder={"用户名"}
                     clearButtonMode={'always'}
                     maxLength={30}
@@ -34,6 +70,7 @@ export default class LoginPage extends Component {
                     onChangeText={(text) => {this.setState({password:text})}}
                     value={this.state.password}
                     secureTextEntry={true}
+                    autoCapitalize={"none"}
                     placeholder={"密码"}
                     clearButtonMode={'always'}
                     maxLength={30}
@@ -45,12 +82,38 @@ export default class LoginPage extends Component {
                 >
                     <Text style={{fontSize: 20,color: 'white'}}>登  录</Text>
                 </TouchableOpacity>
+                <View style={styles.helpview}>
+                    <TouchableOpacity onPress={() => this._toLogupPage()} style={styles.logup}>
+                        <Text style={{color:'#3b8cff'}}>新用户注册</Text>
+                    </TouchableOpacity>
+                </View>
+                <Toast
+                    ref="toast"
+                    style={{backgroundColor:'#69bbff'}}
+                    position='top'
+                    positionValue={500}
+                    fadeInDuration={750}
+                    fadeOutDuration={1000}
+                    opacity={0.8}
+                    textStyle={{color:'#fff'}}
+                />
             </View>
         );
     }
 }
 
 const styles = StyleSheet.create({
+    logup: {
+        margin: 10,
+    },
+    helpview: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingLeft: 10,
+        paddingRight: 10,
+        marginTop:20,
+        marginBottom: 10,
+    },
     container: {
         flex: 1,
         backgroundColor: '#ffffff',

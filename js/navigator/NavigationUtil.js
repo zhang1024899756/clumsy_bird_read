@@ -1,6 +1,9 @@
 /*
 全局导航跳转工具类
 */
+
+import { NavigationActions, StackActions} from 'react-navigation';
+
 export default class NavigationUtil{
     /**
      * 跳转到指定页面
@@ -30,7 +33,18 @@ export default class NavigationUtil{
      */
     static restToHomePage(params) {
         const {navigation} = params;
-        console.log("ss")
         navigation.navigate("Main");
+    };
+    /**
+     * 回到根页面
+     * @param params
+     */
+    static restToRootPage(params) {
+        const { navigation } = params;
+        const resetAction = StackActions.reset({
+            index: 0,
+            actions: [NavigationActions.navigate("HomePage")]
+        })
+        navigation.dispatch(resetAction);
     };
 }
