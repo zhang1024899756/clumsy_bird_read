@@ -9,8 +9,9 @@ import {
 import AntDesign from "react-native-vector-icons/AntDesign";
 import NavigationUtil from "../navigator/NavigationUtil";
 
+import { connect } from 'react-redux';
 
-export default class TitleBar extends Component{
+class TitleBar extends Component{
     constructor(props) {
         super(props);
         this.state = {}
@@ -26,7 +27,7 @@ export default class TitleBar extends Component{
             }}
             style={{flexDirection: 'row',alignItems:'center',position: 'absolute',left:10}}
         >
-            <AntDesign name={'left'} size={24} style={{color: 'black',marginRight: 5}}/>
+            <AntDesign name={'left'} size={24} style={{color:this.props.theme,marginRight: 5}}/>
         </TouchableOpacity>);
     }
 
@@ -37,6 +38,50 @@ export default class TitleBar extends Component{
     }
     render() {
         const { type } = this.props;
+        const styles = StyleSheet.create({
+            container: {
+                paddingTop: Platform.OS === 'ios' ? 30 : 0,
+                backgroundColor: 'white',
+            },
+            bookcity: {
+                height: 50,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingLeft: 20,
+                paddingRight: 20,
+            },
+            title: {
+                fontSize: 20,
+                color:this.props.theme,
+            },
+            detailpage: {
+                height: 50,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingLeft: 10,
+                paddingRight: 10,
+            },
+            bookchapter: {
+                height: 50,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingLeft: 10,
+                paddingRight: 10,
+            },
+            bookcase: {
+                height: 50,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingLeft: 20,
+                paddingRight: 20,
+            },
+            user: {
+                flexDirection: 'row',
+                alignItems:'center',
+                position: 'absolute',
+                left:20,
+            },
+        });
         return (
             <View style={styles.container}>
 
@@ -50,12 +95,12 @@ export default class TitleBar extends Component{
 
                 {type == "BookChapter" ? <View style={styles.bookchapter}>
                     {this._goBack()}
-                    <Text>目录</Text>
+                    <Text style={{color:this.props.theme}}>目录</Text>
                 </View> : null }
 
                 {type == "Bookcase" ? <View style={styles.bookcase}>
                     <TouchableOpacity onPress={() => this._toLogin()} style={styles.user}>
-                        <AntDesign name={'user'} size={24} style={{color: 'black',marginRight: 5}}/>
+                        <AntDesign name={'user'} size={24} style={{color:this.props.theme,marginRight: 5}}/>
                     </TouchableOpacity>
                     <Text style={styles.title}>{this.props.title}</Text>
                 </View> : null}
@@ -66,7 +111,7 @@ export default class TitleBar extends Component{
 
                 {type == "CommentDtail" ? <View style={styles.bookcase}>
                     {this._goBack()}
-                    <Text>详情</Text>
+                    <Text style={{color:this.props.theme}}>详情</Text>
                 </View> : null}
 
                 {type == "Mine" ? <View style={styles.bookcase}>
@@ -79,54 +124,15 @@ export default class TitleBar extends Component{
 
                 {type == "Logup" ? <View style={styles.bookchapter}>
                     {this._goBack()}
-                    <Text>注册</Text>
+                    <Text style={{color:this.props.theme}}>注册</Text>
                 </View> : null }
             </View>
         );
     }
 }
 
-const styles = StyleSheet.create({
-    container: {
-        paddingTop: Platform.OS === 'ios' ? 30 : 0,
-        backgroundColor: 'white',
-    },
-    bookcity: {
-        height: 50,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingLeft: 20,
-        paddingRight: 20,
-    },
-    title: {
-        fontSize: 20,
-        color: 'black',
-    },
-    detailpage: {
-        height: 50,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingLeft: 10,
-        paddingRight: 10,
-    },
-    bookchapter: {
-        height: 50,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingLeft: 10,
-        paddingRight: 10,
-    },
-    bookcase: {
-        height: 50,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingLeft: 20,
-        paddingRight: 20,
-    },
-    user: {
-        flexDirection: 'row',
-        alignItems:'center',
-        position: 'absolute',
-        left:20,
-    },
+const mapStateToProps = state => ({
+    theme: state.theme.theme,
 });
+
+export default connect(mapStateToProps)(TitleBar);

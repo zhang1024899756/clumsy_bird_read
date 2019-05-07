@@ -7,9 +7,11 @@ import Entypo from "react-native-vector-icons/Entypo";
 import TitleBar from "../componenets/TitleBar";
 import NavigationUtil from "../navigator/NavigationUtil";
 
+import { connect } from 'react-redux';
+
 //const MainWidth = Dimensions.get('window').width;
 
-export default class DetailPage extends Component {
+class DetailPage extends Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -50,6 +52,90 @@ export default class DetailPage extends Component {
 
     render() {
         const { loading, book } = this.state;
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                //justifyContent: 'center',
+                // alignItems: 'center',
+                backgroundColor: '#F0F8FF',
+            },
+            bookpaner: {
+                backgroundColor: 'white',
+                padding: 20,
+                alignItems: 'center',
+            },
+            bookcover: {
+                width: 105,
+                height: 140,
+            },
+            bookinfo: {
+                alignItems: 'center',
+                justifyContent: 'center',
+            },
+            title: {
+                fontSize: 20,
+                color:this.props.theme,
+            },
+            author: {
+                color: '#2F4F4F',
+                fontSize: 14,
+            },
+            tags: {
+                flexDirection: 'row',
+            },
+            comline: {
+                color:'#E0EEEE',
+                marginLeft: 5,
+                marginRight: 5,
+            },
+            icon: {
+                color: this.props.theme,
+                marginRight: 5,
+            },
+            infotext: {
+                fontSize: 12,
+            },
+            divide: {
+                height: 1,
+                backgroundColor: '#85baba',
+                marginTop: 10,
+                marginBottom: 10,
+            },
+            newchapter: {
+                height: 40,
+                backgroundColor: 'white',
+                marginTop: 5,
+                alignItems: 'center',
+                justifyContent: 'space-around',
+                flexDirection: 'row',
+                paddingLeft: 10,
+                paddingRight: 10,
+            },
+            chapter: {
+                height: 40,
+                backgroundColor: 'white',
+                marginBottom: 5,
+                alignItems: 'center',
+                justifyContent: 'space-around',
+                flexDirection: 'row',
+                paddingLeft: 10,
+                paddingRight: 10,
+
+            },
+            liketitle: {
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingTop: 10,
+                paddingBottom: 10,
+            },
+            liketext: {
+                fontSize: 12,
+                width: 75,
+                marginTop: 10,
+                marginBottom: 10,
+                color: this.props.theme,
+            },
+        })
         return (
             <View style={styles.container}>
                 <TitleBar type={"DetailPage"} {...this.props}/>
@@ -79,7 +165,7 @@ export default class DetailPage extends Component {
 
                         <View>
                             <TouchableOpacity style={styles.newchapter}>
-                                <Text style={{color: 'rgba(64,73,82,0.78)'}}>最新</Text>
+                                <Text style={{color:this.props.theme}}>最新</Text>
                                 <Text
                                     ellipsizeMode={"tail"}
                                     numberOfLines={1}
@@ -87,7 +173,7 @@ export default class DetailPage extends Component {
                                 <AntDesign name={'right'} size={12} style={styles.icon}/>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => this._toChapter(book)} style={styles.chapter}>
-                                <Text style={{color: 'rgba(64,73,82,0.78)'}}>目录</Text>
+                                <Text style={{color:this.props.theme}}>目录</Text>
                                 <View style={{width:250}}/>
                                 <AntDesign name={'right'} size={12} style={styles.icon}/>
                             </TouchableOpacity>
@@ -96,7 +182,7 @@ export default class DetailPage extends Component {
                         <View style={{backgroundColor:'white',paddingLeft:5,paddingRight:15,}}>
                             <View style={styles.liketitle}>
                                 <Entypo name={'bookmark'} size={18} style={{color: 'red',marginRight: 10}}/>
-                                <Text style={{color:'black'}}>喜欢这本书的人还喜欢</Text>
+                                <Text style={{color:this.props.theme}}>喜欢这本书的人还喜欢</Text>
                             </View>
                             <FlatList
                                 horizontal={true}
@@ -115,86 +201,10 @@ export default class DetailPage extends Component {
     }
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        //justifyContent: 'center',
-        // alignItems: 'center',
-        backgroundColor: '#F0F8FF',
-    },
-    bookpaner: {
-        backgroundColor: 'white',
-        padding: 20,
-        alignItems: 'center',
-    },
-    bookcover: {
-        width: 105,
-        height: 140,
-    },
-    bookinfo: {
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    title: {
-        fontSize: 20,
-        color: 'black',
-    },
-    author: {
-        color: '#2F4F4F',
-        fontSize: 14,
-    },
-    tags: {
-        flexDirection: 'row',
-    },
-    comline: {
-        color:'#E0EEEE',
-        marginLeft: 5,
-        marginRight: 5,
-    },
-    icon: {
-        color: '#2F4F4F',
-        marginRight: 5,
-    },
-    infotext: {
-        fontSize: 12,
-    },
-    divide: {
-       height: 1,
-       backgroundColor: '#85baba',
-        marginTop: 10,
-        marginBottom: 10,
-    },
-    newchapter: {
-        height: 40,
-        backgroundColor: 'white',
-        marginTop: 5,
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        flexDirection: 'row',
-        paddingLeft: 10,
-        paddingRight: 10,
-    },
-    chapter: {
-        height: 40,
-        backgroundColor: 'white',
-        marginBottom: 5,
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        flexDirection: 'row',
-        paddingLeft: 10,
-        paddingRight: 10,
+const mapStateToProps = state => ({
+    theme: state.theme.theme,
+});
 
-    },
-    liketitle: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingTop: 10,
-        paddingBottom: 10,
-    },
-    liketext: {
-        fontSize: 12,
-        width: 75,
-        marginTop: 10,
-        marginBottom: 10,
-    },
-})
+export default connect(mapStateToProps)(DetailPage);
+
+

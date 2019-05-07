@@ -5,48 +5,48 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 import QiDian from "../bookstore/QiDian";
 import HTMLView from 'react-native-htmlview';
 
+import { connect } from 'react-redux';
 
-export default class ReadPage extends Component {
+class ReadPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
             loading: true,
             showSeting: false,
-            chapter: null,
+            content: null,
             book: null,
+            chapterList: null,
         }
     }
     componentDidMount() {
+        console.log("ReadPage",this.props.navigation.state.params)
         if (this.props.navigation.state.params.chapter) {
-            this._loadData(this.props.navigation.state.params)
+            this._loadData(this.props.navigation.state.params.chapter)
         }
+        this.setState({
+            book: this.props.navigation.state.params.book,
+            chapterList: this.props.navigation.state.params.chapterList,
+        })
 
     }
 
-    _loadData(params) {
+    _loadData(chapter) {
         const booksotre = new QiDian();
-        booksotre._getChapterContent(params.chapter.href,booksotre.chapter_content_rule)
+        booksotre._getChapterContent(chapter.href,booksotre.chapter_content_rule)
             .then(data => {
                 this.setState({
-                    chapter: {
-                        content: data,
-                        chapter_index: params.chapter_index,
-                        ...params.chapter,
-                    },
+                    content: data,
                     loading: false,
-                    book: {
-                        bookmarks: params.chapter_index,
-                        ...params.book,
-                    },
                 })
             })
     }
 
     _goBack = () => {
+        this.props.navigation.navigate('Main');
+    }
 
-        // NavigationUtil.goToPageWithName({
-        //     navigation: this.props.navigation,
-        // },"DetailPage");
+    _addBook = () => {
+
     }
 
     _showSeting = () => {
@@ -54,6 +54,31 @@ export default class ReadPage extends Component {
     }
     _hideSeting = () => {
         this.setState({showSeting: false})
+    }
+
+    _preChap = () => {
+        if (this.state.book.chapter_index !== 0) {
+            this.setState({loading:true})
+            let chap = this.state.book.chapter_index - 1;
+            this._loadData(this.state.chapterList[chap])
+            let _book = this.state.book;
+            _book.chapter_index = chap;
+            this.setState({book: _book})
+        }
+        this.setState({loading:false})
+        this.refs.content.scrollTo({x: 0, y: 0, animated: false})
+    }
+    _nextChap = () => {
+        if (this.state.book.chapter_index < this.state.chapterList.length - 1) {
+            this.setState({loading:true})
+            let chap = this.state.book.chapter_index + 1;
+            this._loadData(this.state.chapterList[chap])
+            let _book = this.state.book;
+            _book.chapter_index = chap;
+            this.setState({book: _book})
+        }
+        this.setState({loading:false})
+        this.refs.content.scrollTo({x: 0, y: 0, animated: false})
     }
 
     _toChapter = (book) => {
@@ -67,8 +92,21 @@ export default class ReadPage extends Component {
         },"BookChapter");
     }
 
+    _onScroll(event) {
+        if (this.state.loading) {
+            return;
+        }
+        let y = event.nativeEvent.contentOffset.y;
+        let height = event.nativeEvent.layoutMeasurement.height;
+        let contentHeight = event.nativeEvent.contentSize.height;
+        if(y + height >= contentHeight + 80) {
+            this._nextChap();
+        }
+    }
+
+
     render() {
-        const { loading, chapter, book } = this.state;
+        const { loading, content, book, showSeting } = this.state;
         const _style = {
             goback: {
                 height: 50,
@@ -116,6 +154,29 @@ export default class ReadPage extends Component {
                 }
             },
         };
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                paddingTop: Platform.OS === 'ios' ? 40 : 0,
+                backgroundColor: 'white',
+            },
+            welcome: {
+                color: '#8a8a8a',
+                fontSize: 14,
+                textAlign: 'center',
+                margin: 10,
+                marginBottom: 30,
+            },
+            button: {
+                flex: 1,
+                height:50,
+                alignItems: 'center',
+                justifyContent: 'center',
+            },
+            buttontext: {
+                color: '#595f69',
+            },
+        })
         return (
             <View style={styles.container}>
                 <View style={_style.goback}>
@@ -123,33 +184,44 @@ export default class ReadPage extends Component {
                         onPress={() => this._goBack()}
                         style={{flexDirection: 'row',alignItems:'center',position: 'absolute',left:10}}
                     >
-                        <AntDesign name={'left'} size={24} style={{color: '#9f9f9f',marginRight: 5}}/>
+                        <AntDesign name={'left'} size={24} style={{color:this.props.theme,marginRight: 5}}/>
                     </TouchableOpacity>
+                    {showSeting ? <TouchableOpacity
+                        onPress={() => this._addBook()}
+                        style={{flexDirection: 'row',alignItems:'center',position: 'absolute',right:10}}
+                    >
+                        <AntDesign name={'download'} size={24} style={{color:this.props.theme,marginRight: 5}}/>
+                    </TouchableOpacity> : null}
                 </View>
 
                 <View style={_style.buttonview}>
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity onPress={() => this._preChap()} style={styles.button}>
                         <Text style={styles.buttontext}>上一章</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => this._toChapter(book)} style={styles.button}>
                         <Text style={styles.buttontext}>目录</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity onPress={() => this._nextChap()} style={styles.button}>
                         <Text style={styles.buttontext}>下一章</Text>
                     </TouchableOpacity>
                 </View>
                 
                 {loading
                     ? <View style={{alignItems:'center',marginTop:200}}><Text>加载中...</Text></View>
-                    : <ScrollView style={_style.contentview}>
+                    : <ScrollView
+                        ref={"content"}
+                        style={_style.contentview}
+                        onScroll={this._onScroll.bind(this)}
+                        scrollEventThrottle={20}
+                    >
                         <TouchableOpacity
                             activeOpacity={1}
                             onPress={() => this._hideSeting()}
                             onLongPress={() => this._showSeting()}
                         >
-                            <Text style={_style.chapter_title}>{chapter.title}</Text>
+                            <Text style={_style.chapter_title}>{this.state.chapterList[this.state.book.chapter_index].title}</Text>
                             <HTMLView
-                                value={chapter.content}
+                                value={content}
                                 stylesheet={_style._content}
                             />
                         </TouchableOpacity>
@@ -167,26 +239,10 @@ export default class ReadPage extends Component {
     }
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        paddingTop: Platform.OS === 'ios' ? 40 : 0,
-        backgroundColor: 'white',
-    },
-    welcome: {
-        color: '#8a8a8a',
-        fontSize: 14,
-        textAlign: 'center',
-        margin: 10,
-        marginBottom: 30,
-    },
-    button: {
-        flex: 1,
-        height:50,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    buttontext: {
-        color: '#595f69',
-    },
-})
+
+
+const mapStateToProps = state => ({
+    theme: state.theme.theme,
+});
+
+export default connect(mapStateToProps)(ReadPage);

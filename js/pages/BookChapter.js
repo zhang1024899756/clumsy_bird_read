@@ -14,6 +14,7 @@ export default class BookChapter extends Component {
         }
     }
     componentDidMount() {
+        console.log("BookChapter",this.props.navigation.state.params.book)
         if (this.props.navigation.state.params.book) {
             this._loadData(this.props.navigation.state.params.book)
         }
@@ -54,9 +55,12 @@ export default class BookChapter extends Component {
     _toRead = (item,index) => {
         NavigationUtil.goToPageWithName({
             navigation: this.props.navigation,
-            book: this.props.navigation.state.params.book,
+            chapterList: this.state.chapterList,
+            book: {
+                ...this.props.navigation.state.params.book,
+                chapter_index: index,
+            },
             chapter: item,
-            chapter_index: index,
         },"ReadPage");
     }
 

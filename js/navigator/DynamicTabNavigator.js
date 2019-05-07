@@ -3,6 +3,8 @@ import { createAppContainer, createBottomTabNavigator } from 'react-navigation';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { BottomTabBar } from 'react-navigation-tabs';
 
+import { connect } from 'react-redux';
+
 
 import BookcasePage from '../pages/BookcasePage';
 import CommunityPage from '../pages/CommunityPage';
@@ -77,7 +79,7 @@ class TabBarComponent extends Component{
 }
 
 
-export default class DynamicTabNavigator extends Component{
+class DynamicTabNavigator extends Component{
     _tabNavigator() {
         if (this.Tabs) {
             return this.Tabs;
@@ -100,3 +102,10 @@ export default class DynamicTabNavigator extends Component{
         return <Tab/>;
     }
 }
+
+
+const mapStateToProps = state => ({
+    theme: state.theme.theme,
+});
+
+export default connect(mapStateToProps)(DynamicTabNavigator);
