@@ -1,16 +1,31 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, TouchableOpacity, Platform, ScrollView } from 'react-native';
+import {
+    StyleSheet,
+    Text,
+    View,
+    TouchableOpacity,
+    Platform,
+    ScrollView,
+    TouchableHighlight,
+    Modal,
+} from 'react-native';
+import { NavigationActions, StackActions} from 'react-navigation';
 import NavigationUtil from "../navigator/NavigationUtil";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import QiDian from "../bookstore/QiDian";
 import HTMLView from 'react-native-htmlview';
+import Toast from "react-native-easy-toast";
 
 import { connect } from 'react-redux';
+import DataStore from "../expand/DataStore";
+import URL from "../../serverAPI";
 
 class ReadPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            hasUser: false,
+            modalVisible: false,
             loading: true,
             showSeting: false,
             content: null,
@@ -30,6 +45,12 @@ class ReadPage extends Component {
 
     }
 
+    componentWillUnmount() {
+        this.setState = (state, callback) => {
+            return;
+        };
+    }
+
     _loadData(chapter) {
         const booksotre = new QiDian();
         booksotre._getChapterContent(chapter.href,booksotre.chapter_content_rule)
@@ -42,11 +63,63 @@ class ReadPage extends Component {
     }
 
     _goBack = () => {
-        this.props.navigation.navigate('Main');
+        this.props.navigation.goBack(this.props.navigation.state.params.key);
+    }
+
+    _checkuserToken = () => {
+        const store = new DataStore();
+        store.fetchLocalData("userToken").then(data => {
+            if (data == null) {
+                this.setModalVisible(!this.state.modalVisible);
+            }else {
+                console.log(this.state.book)
+            }
+        })
+    }
+
+    getOptions(data) {
+        return {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        }
     }
 
     _addBook = () => {
-
+        // this._checkuserToken()
+        if (this.props.userId !== null) {
+            fetch(URL.getUser + "?id=" + this.props.userId)
+            .then((response) => response.json())
+            .then(data => {
+                let user = data.data;
+                let hasBook = false;
+                if (user.books.length > 0) {
+                    for (let book of user.books) {
+                        if (book.bid == this.state.book.bid) {
+                            hasBook = true;
+                        }
+                    }
+                }
+                if (!hasBook) {
+                    user.books.push({
+                        ...this.state.book,
+                        chapterList: this.state.chapterList,
+                    })
+                    fetch(URL.update,this.getOptions(user))
+                    .then((response) => response.json())
+                    .then(data => {
+                        console.log(data)
+                    })
+                }else {
+                    this.refs.toast.show("书架已存放");
+                }
+            })
+        }else {
+            this.setModalVisible(!this.state.modalVisible);
+        }
     }
 
     _showSeting = () => {
@@ -54,6 +127,10 @@ class ReadPage extends Component {
     }
     _hideSeting = () => {
         this.setState({showSeting: false})
+    }
+
+    setModalVisible(visible) {
+        this.setState({ modalVisible: visible });
     }
 
     _preChap = () => {
@@ -102,6 +179,17 @@ class ReadPage extends Component {
         if(y + height >= contentHeight + 80) {
             this._nextChap();
         }
+    }
+
+    _toLogin = () => {
+        const resetAction = StackActions.reset({
+            index: 1,
+            actions: [
+                NavigationActions.navigate({ routeName: 'HomePage' }),
+                NavigationActions.navigate({ routeName: 'LoginPage'})
+            ]
+        });
+        this.props.navigation.dispatch(resetAction);
     }
 
 
@@ -176,6 +264,28 @@ class ReadPage extends Component {
             buttontext: {
                 color: '#595f69',
             },
+            modalview: {
+                marginTop: 200,
+                backgroundColor:this.props.theme,
+                marginLeft: 60,
+                marginRight: 60,
+                height: 180,
+                borderRadius: 20,
+                alignItems: 'center',
+                justifyContent: 'center',
+            },
+            modalcontent: {
+                height: 100,
+                alignItems:'center',
+                justifyContent:'center',
+            },
+            modalbtnviw: {
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderTopWidth: 0.5,
+                borderTopColor:'white',
+            },
         })
         return (
             <View style={styles.container}>
@@ -219,7 +329,9 @@ class ReadPage extends Component {
                             onPress={() => this._hideSeting()}
                             onLongPress={() => this._showSeting()}
                         >
-                            <Text style={_style.chapter_title}>{this.state.chapterList[this.state.book.chapter_index].title}</Text>
+                            <Text style={_style.chapter_title}>
+                                {this.state.chapterList[this.state.book.chapter_index].title}
+                            </Text>
                             <HTMLView
                                 value={content}
                                 stylesheet={_style._content}
@@ -234,6 +346,49 @@ class ReadPage extends Component {
                     </View>
 
                 </View>
+                
+                <Modal
+                    animationType={"slide"}
+                    transparent={false}
+                    visible={this.state.modalVisible}
+                    onRequestClose={() => {
+                        alert("Modal has been closed.");
+                    }}
+                    styles={{backgroundColor:'red'}}
+                >
+                    <View style={styles.modalview}>
+                        <View style={styles.modalcontent}>
+                            <Text style={{color:'white',fontSize:20}}>请登录账号</Text>
+                        </View>
+                        <View style={styles.modalbtnviw}>
+                            <TouchableHighlight
+                                onPress={() => {
+                                    this.setModalVisible(!this.state.modalVisible);
+                                    this.props.navigation.goBack(this.props.navigation.state.params.key);
+                                }}
+                            >
+                                <Text style={{color:'white',fontSize:16}}>返回</Text>
+                            </TouchableHighlight>
+                            <View style={{margin:30}}/>
+                            <TouchableHighlight
+                                onPress={() => this._toLogin()}
+                            >
+                                <Text style={{color:'white',fontSize:16}}>登录</Text>
+                            </TouchableHighlight>
+                        </View>
+                    </View>
+                </Modal>
+
+                <Toast
+                    ref="toast"
+                    style={{backgroundColor:this.props.theme}}
+                    position='top'
+                    positionValue={500}
+                    fadeInDuration={750}
+                    fadeOutDuration={1000}
+                    opacity={0.8}
+                    textStyle={{color:'#fff'}}
+                />
             </View>
         );
     }
@@ -243,6 +398,7 @@ class ReadPage extends Component {
 
 const mapStateToProps = state => ({
     theme: state.theme.theme,
+    userId: state.userId.userId,
 });
 
 export default connect(mapStateToProps)(ReadPage);

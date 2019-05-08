@@ -4,20 +4,37 @@ import {
     View,
     Platform,
     TouchableOpacity,
-    StyleSheet,
+    StyleSheet, Image,
 } from 'react-native';
 import AntDesign from "react-native-vector-icons/AntDesign";
 import NavigationUtil from "../navigator/NavigationUtil";
+import URL from "../../serverAPI";
 
-import { connect } from 'react-redux';
-
-class TitleBar extends Component{
+export default class TitleBar extends Component{
     constructor(props) {
         super(props);
-        this.state = {}
+        this.state = {
+            user: null
+        }
     }
-    componentDidMount() {
 
+
+    componentWillUnmount() {
+        this.setState = (state, callback) => {
+            return;
+        };
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.state.user == null) {
+            if (this.props.userId !== null) {
+                fetch(URL.getUser + "?id=" + this.props.userId)
+                .then((response) => response.json())
+                .then(data => {
+                    this.setState({user:data.data})
+                })
+            }
+        }
     }
 
     _goBack() {
@@ -25,7 +42,7 @@ class TitleBar extends Component{
             onPress={() => {
                 NavigationUtil.goToBack(this.props.navigation);
             }}
-            style={{flexDirection: 'row',alignItems:'center',position: 'absolute',left:10}}
+            style={{flexDirection: 'row',alignItems:'center',position: 'absolute',left:10,top:40}}
         >
             <AntDesign name={'left'} size={24} style={{color:this.props.theme,marginRight: 5}}/>
         </TouchableOpacity>);
@@ -36,15 +53,21 @@ class TitleBar extends Component{
             navigation: this.props.navigation,
         },"LoginPage");
     }
+
+    _toUser = () => {
+        
+    }
+
     render() {
         const { type } = this.props;
+        const { user } = this.state;
         const styles = StyleSheet.create({
             container: {
-                paddingTop: Platform.OS === 'ios' ? 30 : 0,
                 backgroundColor: 'white',
             },
             bookcity: {
-                height: 50,
+                height: 80,
+                paddingTop: Platform.OS === 'ios' ? 30 : 0,
                 alignItems: 'center',
                 justifyContent: 'center',
                 paddingLeft: 20,
@@ -52,24 +75,40 @@ class TitleBar extends Component{
             },
             title: {
                 fontSize: 20,
-                color:this.props.theme,
+                color: this.props.theme,
+            },
+            minetitle: {
+                fontSize: 20,
+                color: 'white',
             },
             detailpage: {
-                height: 50,
+                height: 80,
+                paddingTop: Platform.OS === 'ios' ? 30 : 0,
                 alignItems: 'center',
                 justifyContent: 'center',
                 paddingLeft: 10,
                 paddingRight: 10,
             },
             bookchapter: {
-                height: 50,
+                height: 80,
+                paddingTop: Platform.OS === 'ios' ? 30 : 0,
                 alignItems: 'center',
                 justifyContent: 'center',
                 paddingLeft: 10,
                 paddingRight: 10,
             },
             bookcase: {
-                height: 50,
+                height: 80,
+                paddingTop: Platform.OS === 'ios' ? 30 : 0,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingLeft: 20,
+                paddingRight: 20,
+            },
+            mineview: {
+                height: 80,
+                paddingTop: Platform.OS === 'ios' ? 30 : 0,
+                backgroundColor: this.props.theme,
                 alignItems: 'center',
                 justifyContent: 'center',
                 paddingLeft: 20,
@@ -80,6 +119,7 @@ class TitleBar extends Component{
                 alignItems:'center',
                 position: 'absolute',
                 left:20,
+                top:40,
             },
         });
         return (
@@ -99,9 +139,14 @@ class TitleBar extends Component{
                 </View> : null }
 
                 {type == "Bookcase" ? <View style={styles.bookcase}>
-                    <TouchableOpacity onPress={() => this._toLogin()} style={styles.user}>
-                        <AntDesign name={'user'} size={24} style={{color:this.props.theme,marginRight: 5}}/>
-                    </TouchableOpacity>
+                    {user !== null
+                        ? <TouchableOpacity onPress={() => this._toUser()} style={styles.user}>
+                            <Image source={{uri:user.cover}} style={{width:30,height:30,borderRadius:15}}/>
+                        </TouchableOpacity>
+                        : <TouchableOpacity onPress={() => this._toLogin()} style={styles.user}>
+                            <AntDesign name={'user'} size={24} style={{color:this.props.theme,marginRight: 5}}/>
+                        </TouchableOpacity>
+                    }
                     <Text style={styles.title}>{this.props.title}</Text>
                 </View> : null}
 
@@ -114,8 +159,8 @@ class TitleBar extends Component{
                     <Text style={{color:this.props.theme}}>详情</Text>
                 </View> : null}
 
-                {type == "Mine" ? <View style={styles.bookcase}>
-                    <Text style={styles.title}>{this.props.title}</Text>
+                {type == "Mine" ? <View style={styles.mineview}>
+                    <Text style={styles.minetitle}>{this.props.title}</Text>
                 </View> : null}
 
                 {type == "Login" ? <View style={styles.bookchapter}>
@@ -131,8 +176,3 @@ class TitleBar extends Component{
     }
 }
 
-const mapStateToProps = state => ({
-    theme: state.theme.theme,
-});
-
-export default connect(mapStateToProps)(TitleBar);

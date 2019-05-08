@@ -19,18 +19,11 @@ export default class BookChapter extends Component {
             this._loadData(this.props.navigation.state.params.book)
         }
     }
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        // if (this.state.loading === false) {
-        //     if (this.props.navigation.state.params.book.bookmarks) {
-        //         console.log("有bookmarks")
-        //         //this.refs.flatlist.scrollToIndex({viewPosition: 0, index: 0});
-        //     }
-        // }else {
-        //     console.log("loading:",this.state.loading)
-        // }
-        // console.log("prevProps",prevProps)
-        // console.log("prevState",prevState)
-        // console.log("snapshot",snapshot)
+
+    componentWillUnmount() {
+        this.setState = (state, callback) => {
+            return;
+        };
     }
 
     _loadData(book) {
@@ -54,6 +47,7 @@ export default class BookChapter extends Component {
 
     _toRead = (item,index) => {
         NavigationUtil.goToPageWithName({
+            key: this.props.navigation.state.key,
             navigation: this.props.navigation,
             chapterList: this.state.chapterList,
             book: {

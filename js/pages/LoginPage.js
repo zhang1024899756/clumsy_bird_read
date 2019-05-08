@@ -1,12 +1,14 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Image, TextInput, TouchableOpacity, AsyncStorage } from 'react-native';
+import {StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native';
 import TitleBar from "../componenets/TitleBar";
 import NavigationUtil from "../navigator/NavigationUtil";
 import URL from "../../serverAPI";
 import Toast from "react-native-easy-toast";
+import DataStore from '../expand/DataStore';
+import actions from "../redux/action";
+import {connect} from "react-redux";
 
-
-export default class LoginPage extends Component {
+class LoginPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -23,7 +25,9 @@ export default class LoginPage extends Component {
             .then((response) => response.json())
             .then(data => {
                 if (data.success) {
-                    AsyncStorage.setItem("userToken",data.data._id);
+                    const store = new DataStore();
+                    store.saveData("userToken",data.data._id);
+                    this.props.onLogIn(data.data._id)
                     this.props.navigation.goBack()
                 }else {
                     this.refs.toast.show(data.data);
@@ -50,6 +54,51 @@ export default class LoginPage extends Component {
     }
 
     render() {
+        const styles = StyleSheet.create({
+            logup: {
+                margin: 10,
+            },
+            helpview: {
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingLeft: 10,
+                paddingRight: 10,
+                marginTop:20,
+                marginBottom: 10,
+            },
+            container: {
+                flex: 1,
+                backgroundColor: '#ffffff',
+            },
+            logo: {
+                alignItems: 'center',
+                margin: 20,
+                marginBottom: 30.
+            },
+            inputView: {
+                height: 50,
+                marginTop: 10,
+                marginBottom: 10,
+                marginLeft: 20,
+                marginRight: 20,
+                fontSize: 16,
+                paddingLeft: 10,
+                paddingRight: 10,
+                backgroundColor: '#f4f4f4',
+                color: '#000000',
+                borderRadius: 5,
+            },
+            submitButton: {
+                height: 55,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#3492fa',
+                marginTop: 15,
+                marginLeft: 20,
+                marginRight: 20,
+                borderRadius: 5,
+            },
+        })
         return (
             <View style={styles.container}>
                 <TitleBar type={"Login"} {...this.props}/>
@@ -102,48 +151,15 @@ export default class LoginPage extends Component {
     }
 }
 
-const styles = StyleSheet.create({
-    logup: {
-        margin: 10,
-    },
-    helpview: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingLeft: 10,
-        paddingRight: 10,
-        marginTop:20,
-        marginBottom: 10,
-    },
-    container: {
-        flex: 1,
-        backgroundColor: '#ffffff',
-    },
-    logo: {
-        alignItems: 'center',
-        margin: 20,
-        marginBottom: 30.
-    },
-    inputView: {
-        height: 50,
-        marginTop: 10,
-        marginBottom: 10,
-        marginLeft: 20,
-        marginRight: 20,
-        fontSize: 16,
-        paddingLeft: 10,
-        paddingRight: 10,
-        backgroundColor: '#f4f4f4',
-        color: '#000000',
-        borderRadius: 5,
-    },
-    submitButton: {
-        height: 55,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#3492fa',
-        marginTop: 15,
-        marginLeft: 20,
-        marginRight: 20,
-        borderRadius: 5,
-    },
-})
+const mapStateToProps = state => ({});
+
+const mapDispatchToProps = dispatch => ({
+    onLogIn: (userId) => dispatch(actions.onLogIn(userId)),
+});
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(LoginPage);
+
+

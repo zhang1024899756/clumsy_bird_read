@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native';
 import AntDesign from "react-native-vector-icons/AntDesign";
-import Toast, {DURATION} from 'react-native-easy-toast'
+import Toast, {DURATION} from 'react-native-easy-toast';
 import TitleBar from "../componenets/TitleBar";
 import URL from "../../serverAPI";
 import NavigationUtil from "../navigator/NavigationUtil";
