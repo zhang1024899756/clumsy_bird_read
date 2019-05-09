@@ -2,7 +2,7 @@ import Types from '../../action/types';
 
 
 const defaultState = {
-    userId: null
+    user: null
 }
 
 export default function onAction(state=defaultState,action) {
@@ -10,7 +10,17 @@ export default function onAction(state=defaultState,action) {
         case Types.USER_LOAIN:
             return {
                 ...state,
-                userId: action.userId,
+                user: action.user,
+            }
+        case Types.USER_LOGOUT:
+            return {
+                ...state,
+                user: action.user,
+            }
+        case Types.USER_UPDATE:
+            return {
+                ...state,
+                user: action.user,
             }
         default:
             return state;

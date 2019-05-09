@@ -1,5 +1,16 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, TouchableOpacity,TextInput, Image, TouchableHighlight, Modal, ScrollView } from 'react-native';
+import {
+    StyleSheet,
+    Text,
+    View,
+    TouchableOpacity,
+    TextInput,
+    Image,
+    TouchableHighlight,
+    Modal,
+    ScrollView,
+    AsyncStorage,
+} from 'react-native';
 
 import { connect } from 'react-redux';
 
@@ -9,6 +20,7 @@ import Entypo from "react-native-vector-icons/Entypo";
 import NavigationUtil from "../navigator/NavigationUtil";
 import URL from "../../serverAPI";
 import Toast from "react-native-easy-toast";
+import actions from "../redux/action";
 
 
 
@@ -17,34 +29,14 @@ class MinePage extends Component {
         super(props);
         this.state = {
             hasLogin: false,
-            user: null,
             modalVisible: false,
             updateKey: "",
             text: "",
         }
     }
-    componentDidMount() {
-        this._getUser()
-    }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (this.state.user == null) {
-            this._getUser()
-        }
-    }
 
-    _getUser = () => {
-        if (this.props.userId !== null) {
-            fetch(URL.getUser + "?id=" + this.props.userId)
-            .then((response) => response.json())
-            .then(data => {
-                this.setState({
-                    user:data.data,
-                    hasLogin: true,
-                })
-            })
-        }
-    }
+
 
     setModalVisible(visible) {
         this.setState({ modalVisible: visible });
@@ -79,22 +71,26 @@ class MinePage extends Component {
     }
 
     _saveUpdate = () => {
-        fetch(URL.update,this.getOptions({
-            ...this.state.user,
+        const _user = {
+            ...this.props.user,
             [this.state.updateKey]: this.state.text,
-        }))
-        .then((response) => response.json())
-        .then(data => {
-            this.setState({
-                user:data.data,
-                modalVisible: false,
-            })
+        }
+        this.props.onUserUpdate(_user)
+        this.setState({modalVisible: false})
+    }
 
+    _logOutUser = () => {
+        this.props.onLogOut()
+        AsyncStorage.removeItem("userToken",(error) => {
+            if (error !== null) {
+                console.log("error",error)
+            }
         })
+        this.setState({hasLogin:false})
     }
 
     render() {
-        const { hasLogin, user } = this.state;
+        const {  user } = this.props;
         const styles = StyleSheet.create({
             container: {
                 flex: 1,
@@ -176,13 +172,24 @@ class MinePage extends Component {
                 color: '#000000',
                 borderRadius: 5,
             },
+            logOutBtnview: {
+                height: 40,
+                width:250,
+                borderRadius:12,
+                opacity: 0.9,
+                paddingLeft: 10,
+                paddingRight: 10,
+                backgroundColor: this.props.theme,
+                alignItems: 'center',
+                justifyContent: 'center',
+            }
         })
         return (
             <View style={styles.container}>
                 <TitleBar type={"Mine"} {...this.props}/>
                 <ScrollView>
                     <View>
-                        {hasLogin
+                        {user !== null
                             ? <View style={styles.hasUserview}>
                                 <TouchableOpacity onPress={() => this._updateUser({key:"cover",value:user.cover})}>
                                     <Image source={{uri:user.cover}} style={{width:90,height:90,borderRadius:45}}/>
@@ -286,6 +293,19 @@ class MinePage extends Component {
 
                     </View>
 
+                    {this.props.user !== null ? <View style={{marginTop: 20,alignItems:'center'}}>
+                        <TouchableOpacity
+                            onPress={() => this._logOutUser()}
+                            activeOpacity={0.5}
+                            style={styles.logOutBtnview}
+                        >
+                            <View style={{flexDirection: 'row',alignItems:'center'}}>
+                                <Entypo name={'log-out'} size={18} style={{color:'white',marginRight: 5}}/>
+                                <Text style={{marginLeft:10,fontSize:14,color:'white'}}>退出登录</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View> : null}
+
                     <Modal
                         animationType={"slide"}
                         transparent={false}
@@ -336,9 +356,14 @@ class MinePage extends Component {
 
 const mapStateToProps = state => ({
     theme: state.theme.theme,
-    userId: state.userId.userId,
+    user: state.user.user,
 });
 
-export default connect(mapStateToProps)(MinePage);
+const mapDispatchToProps = dispatch => ({
+    onLogOut: () => dispatch(actions.onLogOut()),
+    onUserUpdate: (user) => dispatch(actions.onUserUpdate(user)),
+});
+
+export default connect(mapStateToProps,mapDispatchToProps)(MinePage);
 
 

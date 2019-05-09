@@ -25,17 +25,6 @@ export default class TitleBar extends Component{
         };
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (this.state.user == null) {
-            if (this.props.userId !== null) {
-                fetch(URL.getUser + "?id=" + this.props.userId)
-                .then((response) => response.json())
-                .then(data => {
-                    this.setState({user:data.data})
-                })
-            }
-        }
-    }
 
     _goBack() {
         return (<TouchableOpacity
@@ -59,8 +48,7 @@ export default class TitleBar extends Component{
     }
 
     render() {
-        const { type } = this.props;
-        const { user } = this.state;
+        const { type, user } = this.props;
         const styles = StyleSheet.create({
             container: {
                 backgroundColor: 'white',

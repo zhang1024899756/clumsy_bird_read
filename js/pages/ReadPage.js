@@ -25,7 +25,6 @@ class ReadPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            hasUser: false,
             modalVisible: false,
             loading: true,
             showSeting: false,
@@ -76,16 +75,6 @@ class ReadPage extends Component {
 
     }
 
-    _checkuserToken = () => {
-        const store = new DataStore();
-        store.fetchLocalData("userToken").then(data => {
-            if (data == null) {
-                this.setModalVisible(!this.state.modalVisible);
-            }else {
-                console.log(this.state.book)
-            }
-        })
-    }
 
     getOptions(data) {
         return {
@@ -99,35 +88,27 @@ class ReadPage extends Component {
     }
 
     _addBook = () => {
-        // this._checkuserToken()
-        if (this.props.userId !== null) {
-            fetch(URL.getUser + "?id=" + this.props.userId)
-            .then((response) => response.json())
-            .then(data => {
-                let user = data.data;
-                let hasBook = false;
-                if (user.books.length > 0) {
-                    for (let book of user.books) {
-                        if (book.bid == this.state.book.bid) {
-                            hasBook = true;
-                        }
+        if (this.props.user !== null) {
+            let user = this.props.user
+            console.log(this.props.user)
+            let hasBook = false;
+            if (user.books.length > 0) {
+                for (let book of user.books) {
+                    if (book.bid == this.state.book.bid) {
+                        hasBook = true;
                     }
                 }
-                if (!hasBook) {
-                    user.books.push({
-                        ...this.state.book,
-                        chapterList: this.state.chapterList,
-                    })
-                    fetch(URL.update,this.getOptions(user))
-                    .then((response) => response.json())
-                    .then(data => {
-                        console.log(data)
-                        this.props.onInitBookList(data.data._id);
-                    })
-                }else {
-                    this.refs.toast.show("书架已存放");
-                }
-            })
+            }
+            if (!hasBook) {
+                user.books.push({
+                    ...this.state.book,
+                    chapterList: this.state.chapterList,
+                })
+                this.props.onUserUpdate(user);
+                this.props.onInitBookList(this.props.user._id);
+            }else {
+                this.refs.toast.show("书架已存放");
+            }
         }else {
             this.setModalVisible(!this.state.modalVisible);
         }
@@ -368,7 +349,10 @@ class ReadPage extends Component {
                 }
                 <View style={_style.buttomview}>
                     <View style={_style.setingview}>
-                        <Text>{this.state.chapterList[this.state.book.chapter_index].title}</Text>
+                        {this.state.book !== null
+                            ? <Text>{this.state.chapterList[this.state.book.chapter_index].title}</Text>
+                            : null
+                        }
                     </View>
 
                 </View>
@@ -457,11 +441,12 @@ class ReadPage extends Component {
 
 const mapStateToProps = state => ({
     theme: state.theme.theme,
-    userId: state.userId.userId,
+    user: state.user.user,
 });
 
 const mapDispatchToProps = dispatch => ({
     onInitBookList: (userId) => dispatch(actions.onInitBookList(userId)),
+    onUserUpdate: (user) => dispatch(actions.onUserUpdate(user)),
 });
 
 export default connect(mapStateToProps,mapDispatchToProps)(ReadPage);

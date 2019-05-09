@@ -28,13 +28,8 @@ class BookcasePage extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log("componentDidUpdate",{
-            "this.state.hasLoad": this.state.hasLoad,
-            "this.props.bookList": this.props.bookList
-        })
+       
         if (!this.state.hasLoad) {
-            console.log("设置");
-            console.log("this.props.bookList.bookListData",this.props.bookList.bookList);
             if (this.props.bookList.bookList) {
                 if (!this.props.bookList.bookList.bookListData) {
                     return
@@ -74,16 +69,6 @@ class BookcasePage extends Component {
         },"ReadPage");
     }
 
-    _toBookCity = () => {
-        const resetAction = StackActions.reset({
-            index: 1,
-            actions: [
-                NavigationActions.navigate({ routeName: 'HomePage' })
-            ]
-        });
-        this.props.navigation.dispatch(resetAction);
-    }
-
     render() {
         const { loading, bookList, showTip } = this.state;
         const styles = StyleSheet.create({
@@ -117,7 +102,7 @@ class BookcasePage extends Component {
                 <TitleBar
                     type={"Bookcase"}
                     theme={this.props.theme}
-                    userId={this.props.userId}
+                    user={this.props.user}
                     {...this.props}
                 />
                 {loading ? <View style={{alignItems:'center',marginTop:200}}><Text>加载中...</Text></View>
@@ -136,7 +121,7 @@ class BookcasePage extends Component {
                                     style={{width: 90, height: 120,marginBottom: 5}}
                                     source={{uri: item.cover}}
                                 />
-                                <Text>{item.title}</Text>
+                                <Text ellipsizeMode={"tail"} numberOfLines={1} style={{width: 90}}>{item.title}</Text>
                             </TouchableOpacity>}
                         />
                         {loading
@@ -162,79 +147,8 @@ class BookcasePage extends Component {
 
 const mapStateToProps = state => ({
     theme: state.theme.theme,
-    userId: state.userId.userId,
+    user: state.user.user,
     bookList: state.bookList,
 });
 
 export default connect(mapStateToProps)(BookcasePage);
-
-
-
-/*{/!*<FlatList*!/}
-{/!*    numColumns={3}*!/}
-{/!*    contentContainerStyle={styles.table}*!/}
-{/!*    data={datalist}*!/}
-{/!*    keyExtractor={this._keyExtractor}*!/}
-{/!*    renderItem={({item}) => {*!/}
-{/!*        <TouchableOpacity style={styles.book} activeOpacity={0.5}>*!/}
-{/!*            <Image*!/}
-{/!*                style={{width: 90, height: 120,marginBottom: 5}}*!/}
-{/!*                source={{uri: item.cover}}*!/}
-{/!*            />*!/}
-{/!*            <Text>{item.title}</Text>*!/}
-{/!*        </TouchableOpacity>*!/}
-{/!*    }}*!/}
-{/!*!/>*!/}*/
-
-
-const datalist = [
-    {
-        title: "全球高武",
-        href: "https://book.qidian.com/info/1012237441",
-        cover: "https://bookcover.yuewen.com/qdbimg/349573/1012237441/150",
-        bid: "10124897440",
-        bookmarks: 3,
-    },
-    {
-        title: "全球高武",
-        href: "https://book.qidian.com/info/1012237441",
-        cover: "https://bookcover.yuewen.com/qdbimg/349573/1012237441/150",
-        bid: "10124835441",
-        bookmarks: 3,
-    },
-    {
-        title: "全球高武",
-        href: "https://book.qidian.com/info/1012237441",
-        cover: "https://bookcover.yuewen.com/qdbimg/349573/1012237441/150",
-        bid: "10229937442",
-        bookmarks: 3,
-    },
-    {
-        title: "全球高武",
-        href: "https://book.qidian.com/info/1012237441",
-        cover: "https://bookcover.yuewen.com/qdbimg/349573/1012237441/150",
-        bid: "1012277543",
-        bookmarks: 3,
-    },
-    {
-        title: "全球高武",
-        href: "https://book.qidian.com/info/1012237441",
-        cover: "https://bookcover.yuewen.com/qdbimg/349573/1012237441/150",
-        bid: "1082237444",
-        bookmarks: 3,
-    },
-    {
-        title: "全球高武",
-        href: "https://book.qidian.com/info/1012237441",
-        cover: "https://bookcover.yuewen.com/qdbimg/349573/1012237441/150",
-        bid: "10129935445",
-        bookmarks: 3,
-    },
-    {
-        title: "全球高武",
-        href: "https://book.qidian.com/info/1012237441",
-        cover: "https://bookcover.yuewen.com/qdbimg/349573/1012237441/150",
-        bid: "10129935446",
-        bookmarks: 3,
-    },
-];

@@ -1,5 +1,15 @@
 import React, {Component} from 'react';
-import {Modal, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, FlatList} from 'react-native';
+import {
+    Modal,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+    ScrollView,
+    FlatList,
+    RefreshControl,
+} from 'react-native';
 import TitleBar from "../componenets/TitleBar";
 import CommentPanel from "../componenets/CommentPanel";
 import AntDesign from "react-native-vector-icons/AntDesign";
@@ -9,50 +19,26 @@ import {connect} from "react-redux";
 import Toast from "react-native-easy-toast";
 import EvilIcons from "react-native-vector-icons/EvilIcons";
 import NavigationUtil from "../navigator/NavigationUtil";
+import actions from "../redux/action";
 
 
 class CommunityPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            user: null,
             loading: true,
             refreshing: false,
             modalVisible: false,
             title: "",
             content:"",
-            datalist:[],
         }
     }
 
     componentDidMount() {
-        this._loadData()
+        this._onRefreshList()
+        this.setState({loading:false})
     }
 
-    _loadData = () => {
-        fetch(URL.commentList)
-        .then((response) => response.json())
-        .then(data => {
-            this.setState({
-                datalist:data.data,
-                loading: false,
-                refreshing: false,
-            })
-        })
-    }
-
-    componentWillReceiveProps(nextProps, nextContext) {
-        if (nextProps.userId !== null) {
-            fetch(URL.getUser + "?id=" + nextProps.userId)
-            .then((response) => response.json())
-            .then(data => {
-                this.setState({
-                    user:data.data,
-                })
-                console.log("getUser",data.data)
-            })
-        }
-    }
 
 
     setModalVisible(visible) {
@@ -71,8 +57,8 @@ class CommunityPage extends Component {
     }
 
     _submitComment = () => {
-        if (this.state.user !== null) {
-            const { books, ...user} = this.state.user
+        if (this.props.user !== null) {
+            const { books, ...user} = this.props.user
             fetch(URL.commentSave,this.getOptions({
                 title: this.state.title,
                 content: this.state.content,
@@ -81,15 +67,12 @@ class CommunityPage extends Component {
             .then((response) => response.json())
             .then(data => {
                 if (data.success) {
-                    let user = this.state.user;
+                    let user = this.props.user;
                     user.comments.push(data.data)
-                    fetch(URL.update,this.getOptions(user))
-                        .then((response) => response.json())
-                        .then(response => {
-                            this._loadData();
-                            this.setState({title:"",content:""})
-                            this.setModalVisible(!this.state.modalVisible)
-                        })
+                    this.props.onUserUpdate(user)
+                    this._onRefreshList();
+                    this.setState({title:"",content:""})
+                    this.setModalVisible(!this.state.modalVisible)
                 }else {
                     this.refs.toast.show(data.data);
                 }
@@ -98,7 +81,7 @@ class CommunityPage extends Component {
     }
 
     _toEditer = () => {
-        if (this.props.userId !== null) {
+        if (this.props.user !== null) {
             this.setModalVisible(!this.state.modalVisible)
         }else {
             NavigationUtil.goToPageWithName({
@@ -108,14 +91,25 @@ class CommunityPage extends Component {
     }
 
     _onRefreshList = () => {
-        this.setState({refreshing:true})
-        this._loadData()
+        this.props.onRefreshComment()
+    }
+
+    _store() {
+        let refresf = this.props.commentRefresh
+        if (!refresf) {
+            refresf = {
+                loading: false,
+                data:[]
+            }
+        }
+        return refresf;
     }
 
     _keyExtractor = (item, index) => `key${index}`;
 
     render() {
-        const { loading,datalist } = this.state;
+        const { loading } = this.state;
+        const  refresf = this._store();
         const styles = StyleSheet.create({
             container: {
                 flex: 1,
@@ -179,30 +173,48 @@ class CommunityPage extends Component {
                 right: 20,
                 alignItems:'center',
                 justifyContent:'center',
-            }
+            },
+            listFooter: {
+                height: 40,
+                alignItems:'center',
+                justifyContent:'center',
+            },
         })
         return (
             <View style={styles.container}>
                 <TitleBar type={"Community"} {...this.props}/>
                 {loading
                     ? <View style={{alignItems:'center',marginTop:200}}><Text>加载中...</Text></View>
-                    : <View>
+                    : <View style={{marginBottom:140}}>
                         <View style={styles.images}>
                             <Text style={{color:'white',fontSize:30}}>横幅</Text>
                         </View>
                         <FlatList
-                            data={datalist}
-                            onRefresh={() => this._onRefreshList()}
-                            refreshing={this.state.refreshing}
+                            data={refresf.data}
                             extraData={this.state}
+                            showsVerticalScrollIndicator = {false}
+                            refreshControl={
+                                <RefreshControl
+                                    title={'加载...'}
+                                    titleColor={this.props.theme}
+                                    colors={[this.props.theme]}
+                                    refreshing={refresf.loading}
+                                    onRefresh={() => this._onRefreshList()}
+                                    tintColor={this.props.theme}
+                                    style={{height:10}}
+                                />
+                            }
                             keyExtractor={this._keyExtractor}
                             renderItem={({item}) => <CommentPanel data={item}   {...this.props}/>}
+                            ListFooterComponent={() => <View style={styles.listFooter}>
+                                <Text style={{color:this.props.theme}}>我是有底线的</Text>
+                            </View>}
                         />
                     </View>
                 }
 
                 <TouchableOpacity onPress={() =>  this._toEditer()} activeOpacity={0.9} style={styles.commentBtn}>
-                    <EvilIcons name={'close'} size={30} style={{color:'#ffffff'}}/>
+                    <EvilIcons name={'pencil'} size={30} style={{color:'#ffffff'}}/>
                 </TouchableOpacity>
 
 
@@ -261,9 +273,20 @@ class CommunityPage extends Component {
     }
 }
 
+
+
+
 const mapStateToProps = state => ({
     theme: state.theme.theme,
-    userId: state.userId.userId,
+    user: state.user.user,
+    commentRefresh: state.commentRefresh.refresh,
 });
 
-export default connect(mapStateToProps)(CommunityPage);
+
+const mapDispatchToProps = dispatch => ({
+    onRefreshComment: () => dispatch(actions.onRefreshComment()),
+    onUserUpdate: (user) => dispatch(actions.onUserUpdate(user)),
+})
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(CommunityPage);

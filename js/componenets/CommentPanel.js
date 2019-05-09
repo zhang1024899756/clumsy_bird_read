@@ -66,7 +66,7 @@ export default class CommentPanel extends Component{
                             </View>
                             {data.author.power == 10
                                 ? <Image source={require('../image/官方置顶印章.png')} style={{width:50,height:50,opacity:0.5}}/>
-                                : data.commentNumber >= 50
+                                : data.commentNumber >= 4
                                     ? <Image source={require('../image/热门帖子印章.png')} style={{width:50,height:50,opacity:0.5}}/>
                                     : null
                             }

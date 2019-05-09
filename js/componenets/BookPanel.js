@@ -78,7 +78,7 @@ class BookPanel extends Component{
                 padding: 2,
             },
             booktitle: {
-                color: this.props.theme,
+                color: '#464c5c',
                 width: 75,
                 fontSize: 13,
                 lineHeight: 16,

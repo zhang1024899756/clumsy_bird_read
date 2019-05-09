@@ -27,7 +27,7 @@ class LoginPage extends Component {
                 if (data.success) {
                     const store = new DataStore();
                     store.saveData("userToken",data.data._id);
-                    this.props.onLogIn(data.data._id);
+                    this.props.onLogIn(data.data);
                     this.props.onInitBookList(data.data._id);
                     this.props.navigation.goBack()
                 }else {
@@ -109,7 +109,6 @@ class LoginPage extends Component {
                 <TextInput
                     style={styles.inputView}
                     onChangeText={(text) => {this.setState({username:text})}}
-                    value={this.state.username}
                     autoCapitalize={"none"}
                     placeholder={"用户名"}
                     clearButtonMode={'always'}
@@ -118,7 +117,6 @@ class LoginPage extends Component {
                 <TextInput
                     style={styles.inputView}
                     onChangeText={(text) => {this.setState({password:text})}}
-                    value={this.state.password}
                     secureTextEntry={true}
                     autoCapitalize={"none"}
                     placeholder={"密码"}
@@ -155,7 +153,7 @@ class LoginPage extends Component {
 const mapStateToProps = state => ({});
 
 const mapDispatchToProps = dispatch => ({
-    onLogIn: (userId) => dispatch(actions.onLogIn(userId)),
+    onLogIn: (user) => dispatch(actions.onLogIn(user)),
     onInitBookList: (userId) => dispatch(actions.onInitBookList(userId)),
 });
 

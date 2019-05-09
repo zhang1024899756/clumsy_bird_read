@@ -28,6 +28,8 @@ class CommentDtailPage extends Component {
         this.state = {
             loading: true,
             data: null,
+            hasStar:false,
+            hasLike:false,
             images: null,
             imagesVisible: false,
             showInputView: false,
@@ -73,29 +75,24 @@ class CommentDtailPage extends Component {
 }*/
 
     _submitComment = () => {
-        if (this.props.userId !== null) {
-            fetch(URL.getUser + "?id=" + this.props.userId)
+        if (this.props.user !== null) {
+            const _comment = {
+                author: this.props.user,
+                content: this.state.text,
+                star: 0,
+                time: new Date(),
+            }
+            let Comment = this.state.data;
+            Comment.comments.unshift(_comment)
+            Comment.commentNumber += 1;
+            fetch(URL.commentSave,this.getOptions(Comment))
             .then((response) => response.json())
             .then(data => {
-                let user = data.data;
-                const _comment = {
-                   author: user,
-                   content: this.state.text,
-                   star: 0,
-                   time: new Date(),
-                }
-                let Comment = this.state.data;
-                Comment.comments.unshift(_comment)
-                Comment.commentNumber += 1;
-                fetch(URL.commentSave,this.getOptions(Comment))
-                    .then((response) => response.json())
-                    .then(data => {
-                        this._loadData()
-                        this.setState({
-                            showInputView: false,
-                            text:"",
-                        })
-                    })
+                this._loadData()
+                this.setState({
+                    showInputView: false,
+                    text:"",
+                })
             })
         }
     }
@@ -135,7 +132,7 @@ class CommentDtailPage extends Component {
         this.setState({ imagesVisible: visible });
     }
     _showInput = (visible) => {
-        if (this.props.userId !== null) {
+        if (this.props.user !== null) {
             this.setState({showInputView: visible});
         }else {
             NavigationUtil.goToPageWithName({
@@ -146,6 +143,38 @@ class CommentDtailPage extends Component {
     touchView = () => {
         this.setState({showInputView: false});
     }
+
+    _starComment = () => {
+        if (!this.state.hasStar) {
+            let Comment = this.state.data;
+            Comment.star += 9;
+            fetch(URL.commentSave,this.getOptions(Comment))
+            .then((response) => response.json())
+            .then(data => {
+                this._loadData()
+                this.setState({
+                    hasStar: true,
+                })
+            })
+        }
+    }
+
+    _likeThis = (index) => {
+        if (!this.state.hasLike) {
+            let Comment = this.state.data;
+            Comment.comments[index].star += 1;
+            fetch(URL.commentSave,this.getOptions(Comment))
+            .then((response) => response.json())
+            .then(data => {
+                this._loadData()
+                this.setState({
+                    hasLike: true,
+                })
+            })
+        }
+    }
+
+    
 
     render() {
         const { loading, data, images, imagesVisible, showInputView } = this.state;
@@ -306,18 +335,23 @@ class CommentDtailPage extends Component {
 
                         </View>
                     }
-                    <View style={styles.comment}>
-                        <Text style={styles.commentTitle}>评论</Text>
-                        {this.state.data !== null ? <FlatList
+                    {this.state.data !== null
+                        ? <View style={styles.comment}>
+                        {this.state.data.comments.length > 0
+                            ? <Text style={styles.commentTitle}>评论</Text>
+                            : <Text style={styles.commentTitle}>暂无评论</Text>
+                        }
+
+                        <FlatList
                             keyExtractor={this._keyExtractor}
                             data={this.state.data.comments}
-                            renderItem={({item}) => <View>
+                            renderItem={({item,index}) => <View>
                                 <View style={styles.comHeader}>
                                     <View style={styles.author}>
                                         <Image source={{uri:item.author.cover}} style={{width:30,height:30,borderRadius:15}}/>
                                         <Text style={{marginLeft:10,fontSize:12,color:this.props.theme}}>{item.author.call}</Text>
                                     </View>
-                                    <TouchableOpacity style={styles.star}>
+                                    <TouchableOpacity onPress={() => this._likeThis(index)} style={styles.star}>
                                         <Text style={styles.comTip}>{item.star}</Text>
                                         <EvilIcons name={'like'} size={24} style={{color:this.props.theme}}/>
                                     </TouchableOpacity>
@@ -328,8 +362,8 @@ class CommentDtailPage extends Component {
                                     <Text style={styles.comTip}>{item.meta}</Text>
                                 </View>
                             </View>}
-                        /> : null}
-                    </View>
+                        />
+                    </View> : null}
                 </ScrollView>
                 {showInputView
                     ? <KeyboardAvoidingView behavior={"padding"} style={styles.inputView}>
@@ -348,16 +382,16 @@ class CommentDtailPage extends Component {
                     </KeyboardAvoidingView>
                     : null
                 }
-                <View style={styles.bottomView}>
+                {this.state.data !== null ? <View style={styles.bottomView}>
                     <TouchableOpacity onPress={() => this._showInput(!showInputView)} style={styles.button}>
                         <EvilIcons name={'pencil'} size={30}  style={styles.buttonColor}/>
-                        <Text style={styles.buttonColor}>43</Text>
+                        <Text style={styles.buttonColor}>{data.commentNumber}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity onPress={() => this._starComment()} style={styles.button}>
                         <EvilIcons name={'like'} size={30}  style={styles.buttonColor}/>
-                        <Text style={styles.buttonColor}>43</Text>
+                        <Text style={styles.buttonColor}>{data.star}</Text>
                     </TouchableOpacity>
-                </View>
+                </View> : null}
             </View>
         );
     }
@@ -365,15 +399,10 @@ class CommentDtailPage extends Component {
 
 const mapStateToProps = state => ({
     theme: state.theme.theme,
-    userId: state.userId.userId,
+    user: state.user.user,
 });
 
-const mapDispatchToProps = dispatch => ({
-    onLogIn: (userId) => dispatch(actions.onLogIn(userId)),
-});
 
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(CommentDtailPage);
+
+export default connect(mapStateToProps)(CommentDtailPage);
 

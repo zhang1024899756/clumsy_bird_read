@@ -6,10 +6,11 @@ import QiDian from '../bookstore/QiDian';
 import TitleBar from '../componenets/TitleBar';
 import BookPanel from '../componenets/BookPanel';
 import RnSwiper from '../componenets/RnSwiper';
+import {connect} from "react-redux";
 
 
 
-export default class BookCityPage extends Component{
+class BookCityPage extends Component{
     constructor(props) {
         super(props);
         this.state = {
@@ -40,6 +41,12 @@ export default class BookCityPage extends Component{
 
     render() {
         const { FlatListData, loading } = this.state;
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                backgroundColor: '#F0F8FF',
+            },
+        });
         return (
             <View style={styles.container}>
                 <TitleBar type={"BookCity"} {...this.props}/>
@@ -60,9 +67,9 @@ export default class BookCityPage extends Component{
     }
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#F0F8FF',
-    },
+const mapStateToProps = state => ({
+    theme: state.theme.theme,
 });
+
+export default connect(mapStateToProps)(BookCityPage);
+

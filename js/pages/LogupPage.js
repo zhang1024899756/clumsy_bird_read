@@ -124,7 +124,6 @@ export default class LogupPage extends Component {
                     ref={"username"}
                     style={styles.inputView}
                     onChangeText={(text) => {this.setState({username:text})}}
-                    value={this.state.username}
                     autoCapitalize={"none"}
                     placeholder={"用户名"}
                     clearButtonMode={'always'}
@@ -134,7 +133,6 @@ export default class LogupPage extends Component {
                     ref={"password"}
                     style={styles.inputView}
                     onChangeText={(text) => {this.setState({password:text})}}
-                    value={this.state.password}
                     secureTextEntry={true}
                     autoCapitalize={"none"}
                     placeholder={"密码"}
