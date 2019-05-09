@@ -21,33 +21,14 @@ export default class CommentPanel extends Component{
     }
     componentDidMount() {
         this.setState({
-            data: {
-                title: "结局猜想,他的结局可能会成为炸弹仁的同事",
-                content: "我觉得高温不会在躺下了，他的结局可能会成为炸弹仁的同事，成为审查官。西陵里说过，有的审查官是会组建自己的势力的。\n我觉得高温不会在躺下了，他的结局可能会成为炸弹仁的同事，成为审查官。西陵里说过，有的审查官是会组建自己的势力的。",
-                images:[
-                    "http://5b0988e595225.cdn.sohucs.com/images/20180524/d948e00d9c984422a9d6db90e14cbf82.jpeg",
-                    "http://5b0988e595225.cdn.sohucs.com/images/20180524/d948e00d9c984422a9d6db90e14cbf82.jpeg",
-                    "http://5b0988e595225.cdn.sohucs.com/images/20180524/d948e00d9c984422a9d6db90e14cbf82.jpeg",
-                    "http://5b0988e595225.cdn.sohucs.com/images/20180524/d948e00d9c984422a9d6db90e14cbf82.jpeg",
-                ],
-                book: {
-                    title: "道君",
-                    cover:"https://bookcover.yuewen.com/qdbimg/349573/1005236478/180",
-                    tag: "修仙",
-                    state:"连载",
-                },
-                type: "book",
-                author: {
-                    cover: "http://bpic.588ku.com/element_origin_min_pic/18/01/12/9b3634950a2c2a899413958c93ebfab5.jpg%21/fwfh/804x804/quality/90/unsharp/true/compress/true",
-                    name: "一千古",
-                    power: 1,
-                },
-                star: 54,
-                commentNumber: 50,
-            },
+            data: this.props.data,
             loading:false,
         })
     }
+
+
+
+
     _getImagesItem(images) {
         let list = new Array();
         let index = 0;
@@ -81,7 +62,7 @@ export default class CommentPanel extends Component{
                         <View style={styles.header}>
                             <View style={styles._row}>
                                 <Image source={{uri:data.author.cover}} style={{width:30,height:30,borderRadius:15}}/>
-                                <Text style={{marginLeft:10,fontSize:12,color:'#291400'}}>{data.author.name}</Text>
+                                <Text style={{marginLeft:10,fontSize:12,color:'#291400'}}>{data.author.call}</Text>
                             </View>
                             {data.author.power == 10
                                 ? <Image source={require('../image/官方置顶印章.png')} style={{width:50,height:50,opacity:0.5}}/>

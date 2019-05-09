@@ -5,6 +5,7 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 import {NavigationActions, StackActions} from "react-navigation";
 import {connect} from "react-redux";
 import URL from "../../serverAPI";
+import NavigationUtil from "../navigator/NavigationUtil";
 
 
 
@@ -15,37 +16,63 @@ class BookcasePage extends Component {
         this.state = {
             showTip: true,
             loading: true,
+            hasLoad: false,
             bookList: [],
         }
     }
 
     componentDidMount() {
-
-
+        this.setState({
+            loading: false,
+        })
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        
-        if (this.state.bookList.length == 0) {
-
-            if (this.props.userId !== null) {
-                fetch(URL.getUser + "?id=" + this.props.userId)
-                .then((response) => response.json())
-                .then(data => {
-                    if (data.data.books.length > 0) {
-                        this.setState({
-                            bookList:data.data.books,
-                            loading: false,
-                            showTip: false,
-                        })
-                        console.log(this.state.bookList)
-                    }
-                })
+        console.log("componentDidUpdate",{
+            "this.state.hasLoad": this.state.hasLoad,
+            "this.props.bookList": this.props.bookList
+        })
+        if (!this.state.hasLoad) {
+            console.log("设置");
+            console.log("this.props.bookList.bookListData",this.props.bookList.bookList);
+            if (this.props.bookList.bookList) {
+                if (!this.props.bookList.bookList.bookListData) {
+                    return
+                }
+                if (this.props.bookList.bookList.bookListData.books.length > 0) {
+                    this.setState({
+                        bookList: this.props.bookList.bookList.bookListData.books,
+                        loading: false,
+                        hasLoad: true,
+                        showTip: false,
+                    })
+                }else {
+                    this.setState({
+                        loading: false,
+                        hasLoad: true,
+                        showTip: true,
+                    })
+                }
             }
         }
     }
 
+    componentWillReceiveProps(nextProps, nextContext) {
+        this.setState({hasLoad: false})
+    }
+
+
+
     _keyExtractor = (item, index) => item.bid;
+
+    _toReadPage = (item) => {
+        const { chapterList, ...book } = item;
+        NavigationUtil.goToPageWithName({
+            navigation: this.props.navigation,
+            chapterList: chapterList,
+            book: book,
+        },"ReadPage");
+    }
 
     _toBookCity = () => {
         const resetAction = StackActions.reset({
@@ -65,9 +92,8 @@ class BookcasePage extends Component {
                 backgroundColor: '#ffffff',
             },
             book: {
-                height: 120,
+                height: 130,
                 margin: 16,
-                backgroundColor:'red',
             },
             listFooter: {
                 width: 90,
@@ -94,38 +120,36 @@ class BookcasePage extends Component {
                     userId={this.props.userId}
                     {...this.props}
                 />
-                <FlatList
-                    data={bookList}
-                    extraData={this.state}
-                    renderItem={({item}) => <Text>{item.title}</Text>}
-                />
                 {loading ? <View style={{alignItems:'center',marginTop:200}}><Text>加载中...</Text></View>
                     : <ScrollView>
                         <FlatList
-                            // numColumns={3}
-                            // contentContainerStyle={styles.table}
-                            data={datalist}
+                            data={bookList}
+                            numColumns={3}
                             extraData={this.state}
                             keyExtractor={this._keyExtractor}
-                            renderItem={({item}) => {
-                               <TouchableOpacity style={styles.book} activeOpacity={0.5}>
-                                    <Image
-                                        style={{width: 90, height: 120,marginBottom: 5}}
-                                        source={{uri: item.cover}}
-                                    />
-                                    <Text>{item.title}</Text>
-                                </TouchableOpacity>
-                            }}
-                        />
-                        {showTip
-                            ? <View style={styles.tips}>
+                            renderItem={({item}) => <TouchableOpacity
+                                style={styles.book}
+                                activeOpacity={0.5}
+                                onPress={() => this._toReadPage(item)}
+                            >
                                 <Image
-                                    style={{width:360,height:360}}
-                                    source={require('../image/打脸.png')}
+                                    style={{width: 90, height: 120,marginBottom: 5}}
+                                    source={{uri: item.cover}}
                                 />
-                                <Text style={{fontSize:20,color: '#505050'}}>空 空 如 也 ~</Text>
-                            </View>
-                            : null
+                                <Text>{item.title}</Text>
+                            </TouchableOpacity>}
+                        />
+                        {loading
+                            ? null
+                            : showTip
+                                ? <View style={styles.tips}>
+                                    <Image
+                                        style={{width:360,height:360}}
+                                        source={require('../image/打脸.png')}
+                                    />
+                                    <Text style={{fontSize:20,color: '#505050'}}>空 空 如 也 ~</Text>
+                                </View>
+                                : null
                         }
                     </ScrollView>
                 }
@@ -139,11 +163,28 @@ class BookcasePage extends Component {
 const mapStateToProps = state => ({
     theme: state.theme.theme,
     userId: state.userId.userId,
+    bookList: state.bookList,
 });
 
 export default connect(mapStateToProps)(BookcasePage);
 
 
+
+/*{/!*<FlatList*!/}
+{/!*    numColumns={3}*!/}
+{/!*    contentContainerStyle={styles.table}*!/}
+{/!*    data={datalist}*!/}
+{/!*    keyExtractor={this._keyExtractor}*!/}
+{/!*    renderItem={({item}) => {*!/}
+{/!*        <TouchableOpacity style={styles.book} activeOpacity={0.5}>*!/}
+{/!*            <Image*!/}
+{/!*                style={{width: 90, height: 120,marginBottom: 5}}*!/}
+{/!*                source={{uri: item.cover}}*!/}
+{/!*            />*!/}
+{/!*            <Text>{item.title}</Text>*!/}
+{/!*        </TouchableOpacity>*!/}
+{/!*    }}*!/}
+{/!*!/>*!/}*/
 
 
 const datalist = [

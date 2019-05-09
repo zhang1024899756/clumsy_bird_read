@@ -27,7 +27,8 @@ class LoginPage extends Component {
                 if (data.success) {
                     const store = new DataStore();
                     store.saveData("userToken",data.data._id);
-                    this.props.onLogIn(data.data._id)
+                    this.props.onLogIn(data.data._id);
+                    this.props.onInitBookList(data.data._id);
                     this.props.navigation.goBack()
                 }else {
                     this.refs.toast.show(data.data);
@@ -155,6 +156,7 @@ const mapStateToProps = state => ({});
 
 const mapDispatchToProps = dispatch => ({
     onLogIn: (userId) => dispatch(actions.onLogIn(userId)),
+    onInitBookList: (userId) => dispatch(actions.onInitBookList(userId)),
 });
 
 export default connect(

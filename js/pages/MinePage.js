@@ -8,6 +8,7 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 import Entypo from "react-native-vector-icons/Entypo";
 import NavigationUtil from "../navigator/NavigationUtil";
 import URL from "../../serverAPI";
+import Toast from "react-native-easy-toast";
 
 
 
@@ -193,7 +194,15 @@ class MinePage extends Component {
                                     <Text style={styles.signature}>{user.signature}</Text>
                                 </TouchableOpacity>
                             </View>
-                            : <TouchableOpacity  activeOpacity={0.5} style={styles.userview}>
+                            : <TouchableOpacity
+                                onPress={() => {
+                                    NavigationUtil.goToPageWithName({
+                                        navigation: this.props.navigation,
+                                    },"LoginPage");
+                                }}
+                                activeOpacity={0.5}
+                                style={styles.userview}
+                            >
                                 <View style={{flexDirection: 'row',alignItems:'center'}}>
                                     <AntDesign name={'user'} size={30} style={{color:this.props.theme,marginRight: 5}}/>
                                     <Text style={{marginLeft:10}}>立即登录</Text>
@@ -236,7 +245,10 @@ class MinePage extends Component {
 
                         <Text style={styles.viewtitle}>关于应用</Text>
 
-                        <TouchableOpacity activeOpacity={0.5} style={styles.setingview}>
+                        <TouchableOpacity
+                            onPress={() => this.refs.toast.show("已是最新版本！")}
+                            activeOpacity={0.5} style={styles.setingview}
+                        >
                             <View style={{flexDirection: 'row',alignItems:'center'}}>
                                 <Entypo name={'arrow-up'} size={20} style={{color:this.props.theme,marginRight: 5}}/>
                                 <Text style={{marginLeft:10,fontSize:12}}>更新版本</Text>
@@ -246,7 +258,11 @@ class MinePage extends Component {
 
                         <View style={styles.line}/>
 
-                        <TouchableOpacity activeOpacity={0.5} style={styles.setingview}>
+                        <TouchableOpacity
+                            onPress={() => this.refs.toast.show("菜鸟阅读 v1.1")}
+                            activeOpacity={0.5}
+                            style={styles.setingview}
+                        >
                             <View style={{flexDirection: 'row',alignItems:'center'}}>
                                 <Entypo name={'tools'} size={20} style={{color:this.props.theme,marginRight: 5}}/>
                                 <Text style={{marginLeft:10,fontSize:12}}>版本介绍</Text>
@@ -256,7 +272,11 @@ class MinePage extends Component {
 
                         <View style={styles.line}/>
 
-                        <TouchableOpacity activeOpacity={0.5} style={styles.setingview}>
+                        <TouchableOpacity
+                            onPress={() => this.refs.toast.show("作者：创造之（ 张心彧 ）")}
+                            activeOpacity={0.5}
+                            style={styles.setingview}
+                        >
                             <View style={{flexDirection: 'row',alignItems:'center'}}>
                                 <Entypo name={'emoji-flirt'} size={20} style={{color:this.props.theme,marginRight: 5}}/>
                                 <Text style={{marginLeft:10,fontSize:12}}>关于作者</Text>
@@ -296,6 +316,17 @@ class MinePage extends Component {
                             </View>
                         </View>
                     </Modal>
+
+                    <Toast
+                        ref="toast"
+                        style={{backgroundColor:this.props.theme}}
+                        position='top'
+                        positionValue={400}
+                        fadeInDuration={500}
+                        fadeOutDuration={800}
+                        opacity={0.8}
+                        textStyle={{color:'#fff'}}
+                    />
                 </ScrollView>
             </View>
         );

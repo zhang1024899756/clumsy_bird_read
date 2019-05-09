@@ -7,7 +7,7 @@ import {
     Platform,
     ScrollView,
     TouchableHighlight,
-    Modal,
+    Modal, FlatList,
 } from 'react-native';
 import { NavigationActions, StackActions} from 'react-navigation';
 import NavigationUtil from "../navigator/NavigationUtil";
@@ -19,6 +19,7 @@ import Toast from "react-native-easy-toast";
 import { connect } from 'react-redux';
 import DataStore from "../expand/DataStore";
 import URL from "../../serverAPI";
+import actions from "../redux/action";
 
 class ReadPage extends Component {
     constructor(props) {
@@ -31,12 +32,15 @@ class ReadPage extends Component {
             content: null,
             book: null,
             chapterList: null,
+            chapterVisible: false,
         }
     }
     componentDidMount() {
-        console.log("ReadPage",this.props.navigation.state.params)
-        if (this.props.navigation.state.params.chapter) {
+        console.log("this.props.navigation.state.params",this.props.navigation.state.params)
+        if (this.props.navigation.state.params.navigation.state.routeName === "BookChapter" ) {
             this._loadData(this.props.navigation.state.params.chapter)
+        }else if (this.props.navigation.state.params.navigation.state.routeName === "BookcasePage") {
+            this._loadData(this.props.navigation.state.params.chapterList[this.props.navigation.state.params.book.chapter_index])
         }
         this.setState({
             book: this.props.navigation.state.params.book,
@@ -44,6 +48,7 @@ class ReadPage extends Component {
         })
 
     }
+
 
     componentWillUnmount() {
         this.setState = (state, callback) => {
@@ -63,7 +68,12 @@ class ReadPage extends Component {
     }
 
     _goBack = () => {
-        this.props.navigation.goBack(this.props.navigation.state.params.key);
+        if (this.props.navigation.state.params.navigation.state.routeName === "BookcasePage") {
+            this.props.navigation.goBack()
+        }else {
+            this.props.navigation.goBack(this.props.navigation.state.params.key);
+        }
+
     }
 
     _checkuserToken = () => {
@@ -112,6 +122,7 @@ class ReadPage extends Component {
                     .then((response) => response.json())
                     .then(data => {
                         console.log(data)
+                        this.props.onInitBookList(data.data._id);
                     })
                 }else {
                     this.refs.toast.show("书架已存放");
@@ -131,6 +142,10 @@ class ReadPage extends Component {
 
     setModalVisible(visible) {
         this.setState({ modalVisible: visible });
+    }
+
+    setChapterVisible(visible) {
+        this.setState({ chapterVisible: visible });
     }
 
     _preChap = () => {
@@ -158,16 +173,17 @@ class ReadPage extends Component {
         this.refs.content.scrollTo({x: 0, y: 0, animated: false})
     }
 
-    _toChapter = (book) => {
-
-        //redux.....
-        console.log(book)
-
-        NavigationUtil.goToPageWithName({
-            navigation: this.props.navigation,
-            book: book,
-        },"BookChapter");
+    _changeChapter = (index) => {
+        this._loadData(this.state.chapterList[index])
+        let _book = this.state.book;
+        _book.chapter_index = index;
+        this.setState({
+            book: _book,
+            chapterVisible: false
+        })
+        this.refs.content.scrollTo({x: 0, y: 0, animated: false})
     }
+    
 
     _onScroll(event) {
         if (this.state.loading) {
@@ -192,9 +208,11 @@ class ReadPage extends Component {
         this.props.navigation.dispatch(resetAction);
     }
 
+    _keyExtractor = (item, index) => `key${index}`;
+
 
     render() {
-        const { loading, content, book, showSeting } = this.state;
+        const { loading, content, book, showSeting, chapterList } = this.state;
         const _style = {
             goback: {
                 height: 50,
@@ -286,6 +304,14 @@ class ReadPage extends Component {
                 borderTopWidth: 0.5,
                 borderTopColor:'white',
             },
+            item: {
+                height: 40,
+                backgroundColor: 'white',
+                justifyContent: 'center',
+                paddingLeft: 40,
+                paddingRight: 10,
+                marginBottom: 1,
+            },
         })
         return (
             <View style={styles.container}>
@@ -308,7 +334,7 @@ class ReadPage extends Component {
                     <TouchableOpacity onPress={() => this._preChap()} style={styles.button}>
                         <Text style={styles.buttontext}>上一章</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => this._toChapter(book)} style={styles.button}>
+                    <TouchableOpacity onPress={() => this.setChapterVisible(!this.state.chapterVisible)} style={styles.button}>
                         <Text style={styles.buttontext}>目录</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => this._nextChap()} style={styles.button}>
@@ -342,7 +368,7 @@ class ReadPage extends Component {
                 }
                 <View style={_style.buttomview}>
                     <View style={_style.setingview}>
-                        <Text>ssdddddddddddd</Text>
+                        <Text>{this.state.chapterList[this.state.book.chapter_index].title}</Text>
                     </View>
 
                 </View>
@@ -379,6 +405,39 @@ class ReadPage extends Component {
                     </View>
                 </Modal>
 
+
+                {chapterList !== null ? <Modal
+                    animationType={"slide"}
+                    transparent={false}
+                    visible={this.state.chapterVisible}
+                >
+                    <View style={{height: 80,}}>
+                        <TouchableOpacity
+                            onPress={() => this.setChapterVisible(!this.state.chapterVisible)}
+                            style={{flexDirection: 'row',alignItems:'center',position: 'absolute',left:10,top:40}}
+                        >
+                            <AntDesign name={'left'} size={24} style={{color:this.props.theme,marginRight: 5}}/>
+                        </TouchableOpacity>
+                    </View>
+                    <FlatList
+                        data={chapterList}
+                        getItemLayout={(data,index) => ( {length:40,offset:40*index,index})}
+                        initialScrollIndex={this.state.book.chapter_index}
+                        extraData={this.state}
+                        keyExtractor={this._keyExtractor}
+                        renderItem={({item,index}) => <TouchableOpacity onPress={() => this._changeChapter(index)} style={styles.item}>
+                            <Text
+                                style={{
+                                    width: 300,
+                                    color: this.state.book.chapter_index == index ? this.props.theme : 'rgba(31,36,49,0.56)',
+                                }}
+                                ellipsizeMode={"tail"}
+                                numberOfLines={1} >{item.title}</Text>
+                        </TouchableOpacity>}
+                    />
+                </Modal> : null}
+
+
                 <Toast
                     ref="toast"
                     style={{backgroundColor:this.props.theme}}
@@ -401,4 +460,8 @@ const mapStateToProps = state => ({
     userId: state.userId.userId,
 });
 
-export default connect(mapStateToProps)(ReadPage);
+const mapDispatchToProps = dispatch => ({
+    onInitBookList: (userId) => dispatch(actions.onInitBookList(userId)),
+});
+
+export default connect(mapStateToProps,mapDispatchToProps)(ReadPage);

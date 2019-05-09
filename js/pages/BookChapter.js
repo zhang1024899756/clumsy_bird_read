@@ -46,6 +46,7 @@ export default class BookChapter extends Component {
     _keyExtractor = (item, index) => `key${index}`;
 
     _toRead = (item,index) => {
+        console.log("跳转")
         NavigationUtil.goToPageWithName({
             key: this.props.navigation.state.key,
             navigation: this.props.navigation,

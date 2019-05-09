@@ -6,6 +6,12 @@ const URL = {
     check: ADRESS + "/check/user",
     getUser: ADRESS + "/detail/user",
     update: ADRESS + "/save/user",
+
+
+    commentSave: ADRESS + "/save/comment",
+    commentList: ADRESS + "/list/comment",
+    commentDetail: ADRESS + "/detail/comment",
+
 }
 
 export default URL;

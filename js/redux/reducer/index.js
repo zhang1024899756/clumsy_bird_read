@@ -3,6 +3,7 @@ import {rootCom, RootNavigator} from '../../navigator/AppNavigator';
 
 import theme from './theme';
 import auther from './auther';
+import book from './book';
 
 //1.指定默认state
 const navState = RootNavigator.router.getStateForAction(
@@ -25,6 +26,7 @@ const index = combineReducers({
     nav: navReducer,
     theme: theme,
     userId: auther,
+    bookList: book,
 });
 
 export default index;
