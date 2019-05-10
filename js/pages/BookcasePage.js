@@ -16,8 +16,6 @@ class BookcasePage extends Component {
         this.state = {
             showTip: true,
             loading: true,
-            hasLoad: false,
-            bookList: [],
         }
     }
 
@@ -27,35 +25,15 @@ class BookcasePage extends Component {
         })
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-       
-        if (!this.state.hasLoad) {
-            if (this.props.bookList.bookList) {
-                if (!this.props.bookList.bookList.bookListData) {
-                    return
-                }
-                if (this.props.bookList.bookList.bookListData.books.length > 0) {
-                    this.setState({
-                        bookList: this.props.bookList.bookList.bookListData.books,
-                        loading: false,
-                        hasLoad: true,
-                        showTip: false,
-                    })
-                }else {
-                    this.setState({
-                        loading: false,
-                        hasLoad: true,
-                        showTip: true,
-                    })
-                }
-            }
+    componentWillReceiveProps(nextProps, nextContext) {
+        if(nextProps.user == null ) {
+            this.setState({showTip: true,})
+        }else if (nextProps.user.books.length == 0) {
+            this.setState({showTip: true,})
+        }else {
+            this.setState({showTip: false,})
         }
     }
-
-    componentWillReceiveProps(nextProps, nextContext) {
-        this.setState({hasLoad: false})
-    }
-
 
 
     _keyExtractor = (item, index) => item.bid;
@@ -69,8 +47,19 @@ class BookcasePage extends Component {
         },"ReadPage");
     }
 
+    _store () {
+        let store = this.props.user;
+        if (store == null) {
+            store = {
+                books: []
+            }
+        }
+        return store;
+    }
+
     render() {
-        const { loading, bookList, showTip } = this.state;
+        const { loading, showTip } = this.state;
+        const store = this._store();
         const styles = StyleSheet.create({
             container: {
                 flex: 1,
@@ -108,7 +97,7 @@ class BookcasePage extends Component {
                 {loading ? <View style={{alignItems:'center',marginTop:200}}><Text>加载中...</Text></View>
                     : <ScrollView>
                         <FlatList
-                            data={bookList}
+                            data={store.books}
                             numColumns={3}
                             extraData={this.state}
                             keyExtractor={this._keyExtractor}

@@ -341,7 +341,7 @@ class MinePage extends Component {
                         ref="toast"
                         style={{backgroundColor:this.props.theme}}
                         position='top'
-                        positionValue={400}
+                        positionValue={300}
                         fadeInDuration={500}
                         fadeOutDuration={800}
                         opacity={0.8}

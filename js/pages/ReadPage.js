@@ -7,6 +7,7 @@ import {
     Platform,
     ScrollView,
     TouchableHighlight,
+    Dimensions,
     Modal, FlatList,
 } from 'react-native';
 import { NavigationActions, StackActions} from 'react-navigation';
@@ -15,10 +16,9 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 import QiDian from "../bookstore/QiDian";
 import HTMLView from 'react-native-htmlview';
 import Toast from "react-native-easy-toast";
-
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { connect } from 'react-redux';
-import DataStore from "../expand/DataStore";
-import URL from "../../serverAPI";
+var {width} =  Dimensions.get('window');
 import actions from "../redux/action";
 
 class ReadPage extends Component {
@@ -29,6 +29,7 @@ class ReadPage extends Component {
             loading: true,
             showSeting: false,
             content: null,
+            textSize: 16,
             book: null,
             chapterList: null,
             chapterVisible: false,
@@ -192,6 +193,19 @@ class ReadPage extends Component {
     _keyExtractor = (item, index) => `key${index}`;
 
 
+    changeTextSize = (pramas) => {
+        if (pramas == 0) {
+            if (this.state.textSize <= 30) {
+                this.setState({textSize: this.state.textSize + 2})
+            }
+        }else {
+            if (this.state.textSize >= 14) {
+                this.setState({textSize: this.state.textSize - 2})
+            }
+        }
+    }
+
+
     render() {
         const { loading, content, book, showSeting, chapterList } = this.state;
         const _style = {
@@ -206,8 +220,6 @@ class ReadPage extends Component {
                 flex: 1,
                 backgroundColor: '#8cc7c7',
                 flexDirection: 'row',
-                position: 'absolute',
-                top: this.state.showSeting ? 90 : 40,
             },
             contentview: {
                 backgroundColor: '#ffffff',
@@ -216,26 +228,26 @@ class ReadPage extends Component {
                 zIndex: -1,
             },
             buttomview: {
-                flex: 1,
+                width: width,
                 backgroundColor: '#e3fdff',
-                flexDirection: 'row',
                 position: 'absolute',
-                bottom: this.state.showSeting ? 0 : -130,
+                bottom: this.state.showSeting ? 0 : -100,
             },
             setingview: {
                 flex: 1,
-                height:150,
+                height:80,
                 alignItems: 'center',
                 justifyContent: 'center',
             },
             chapter_title: {
-                fontSize:16,
+                fontSize:this.state.textSize,
                 marginTop:10,
                 marginBottom:10,
             },
             _content: {
                 span: {
-                    lineHeight: 25,
+                    fontSize: this.state.textSize,
+                    lineHeight: this.state.textSize > 25 ? 30 : 25,
                     minHeight: 30,
                     letterSpacing: 1,
                 }
@@ -293,6 +305,14 @@ class ReadPage extends Component {
                 paddingRight: 10,
                 marginBottom: 1,
             },
+            fontBtn: {
+                width: 100,
+                height:40,
+                backgroundColor:this.props.theme,
+                margin:10,
+                alignItems:'center',
+                justifyContent: 'center',
+            },
         })
         return (
             <View style={styles.container}>
@@ -309,18 +329,6 @@ class ReadPage extends Component {
                     >
                         <AntDesign name={'download'} size={24} style={{color:this.props.theme,marginRight: 5}}/>
                     </TouchableOpacity> : null}
-                </View>
-
-                <View style={_style.buttonview}>
-                    <TouchableOpacity onPress={() => this._preChap()} style={styles.button}>
-                        <Text style={styles.buttontext}>上一章</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => this.setChapterVisible(!this.state.chapterVisible)} style={styles.button}>
-                        <Text style={styles.buttontext}>目录</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => this._nextChap()} style={styles.button}>
-                        <Text style={styles.buttontext}>下一章</Text>
-                    </TouchableOpacity>
                 </View>
                 
                 {loading
@@ -347,15 +355,36 @@ class ReadPage extends Component {
                         <Text style={styles.welcome}>本章完</Text>
                     </ScrollView>
                 }
-                <View style={_style.buttomview}>
-                    <View style={_style.setingview}>
-                        {this.state.book !== null
-                            ? <Text>{this.state.chapterList[this.state.book.chapter_index].title}</Text>
-                            : null
-                        }
-                    </View>
 
-                </View>
+
+                    <View style={_style.buttomview}>
+                        {this.state.showSeting ? <View style={_style.buttonview}>
+                            <TouchableOpacity onPress={() => this._preChap()} style={styles.button}>
+                                <Text style={styles.buttontext}>上一章</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => this.setChapterVisible(!this.state.chapterVisible)} style={styles.button}>
+                                <Text style={styles.buttontext}>目录</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => this._nextChap()} style={styles.button}>
+                                <Text style={styles.buttontext}>下一章</Text>
+                            </TouchableOpacity>
+                        </View> : null}
+                        <View style={_style.setingview}>
+                            {this.state.book !== null
+                                ? <View>
+                                    <View style={{flexDirection:'row',}}>
+                                        <TouchableOpacity style={styles.fontBtn} onPress={() => this.changeTextSize(0)}>
+                                            <MaterialCommunityIcons name={'format-font-size-increase'} size={24} style={{color:'white',marginRight: 5}}/>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={styles.fontBtn} onPress={() => this.changeTextSize(1)}>
+                                            <MaterialCommunityIcons name={'format-font-size-decrease'} size={24} style={{color:'white',marginRight: 5}}/>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                                : null
+                            }
+                        </View>
+                    </View>
                 
                 <Modal
                     animationType={"slide"}

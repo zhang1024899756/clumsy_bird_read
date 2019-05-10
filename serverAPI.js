@@ -1,4 +1,4 @@
-const ADRESS = "http://localhost:8085";
+const ADRESS = "http://cbreadserver.ksmvc.com";
 
 const URL = {
     logup: ADRESS + "/save/user",

@@ -187,7 +187,7 @@ class CommunityPage extends Component {
                     ? <View style={{alignItems:'center',marginTop:200}}><Text>加载中...</Text></View>
                     : <View style={{marginBottom:140}}>
                         <View style={styles.images}>
-                            <Text style={{color:'white',fontSize:30}}>横幅</Text>
+                            <Text style={{color:'white',fontSize:30}}>评论积极建设中</Text>
                         </View>
                         <FlatList
                             data={refresf.data}
