@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Dimensions, Image, StyleSheet, Text, View} from 'react-native';
 import SplashScreen from 'react-native-splash-screen'
 import NavigationUtil from '../navigator/NavigationUtil';
-var {width,height} =  Dimensions.get('window');
+const {width,height} =  Dimensions.get('window');
 
 export default class WellcomePage extends Component {
     componentDidMount() {
@@ -24,7 +24,7 @@ export default class WellcomePage extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <Image style={{width:width,height:height}} source={require('../image/启动图.png')}/>
+                <Image style={{width:1125,height:2436}} source={require('../image/wellcome.png')}/>
             </View>
         );
     }

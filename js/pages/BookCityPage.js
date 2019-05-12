@@ -1,13 +1,13 @@
 import React, {Component} from 'react';
-import {StyleSheet, FlatList, View, Text } from 'react-native';
+import {StyleSheet, FlatList, View, Dimensions } from 'react-native';
 
 import QiDian from '../bookstore/QiDian';
-
+import Spinner from "react-native-spinkit";
 import TitleBar from '../componenets/TitleBar';
 import BookPanel from '../componenets/BookPanel';
 import RnSwiper from '../componenets/RnSwiper';
 import {connect} from "react-redux";
-
+const {width,height} =  Dimensions.get('window');
 
 
 class BookCityPage extends Component{
@@ -46,12 +46,17 @@ class BookCityPage extends Component{
                 flex: 1,
                 backgroundColor: '#F0F8FF',
             },
+            spinner: {
+                position:'absolute',
+                top: height/2 - 18,
+                left: width/2 - 18,
+            },
         });
         return (
             <View style={styles.container}>
                 <TitleBar type={"BookCity"} {...this.props}/>
 
-                {loading ? <View style={{alignItems:'center',marginTop:200}}><Text>加载中...</Text></View>
+                {loading ? null
                     : <FlatList
                     ListHeaderComponent={() => <View
                         style={{height:150,padding:10,backgroundColor:'white'}}
@@ -62,6 +67,12 @@ class BookCityPage extends Component{
                     keyExtractor={this._keyExtractor}
                     renderItem={({item}) => <BookPanel id={item.id} data={item.data} />}
                 />}
+                <Spinner
+                    style={styles.spinner}
+                    isVisible={this.state.loading}
+                    type={'FadingCircle'}
+                    color={this.props.theme}
+                />
             </View>
         );
     }

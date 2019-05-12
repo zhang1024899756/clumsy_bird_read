@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import {StyleSheet, Text, View, FlatList, TouchableOpacity, Dimensions} from 'react-native';
 import TitleBar from "../componenets/TitleBar";
 import QiDian from "../bookstore/QiDian";
 import NavigationUtil from "../navigator/NavigationUtil";
-
+import Spinner from "react-native-spinkit";
+const {width,height} =  Dimensions.get('window');
 
 export default class BookChapter extends Component {
     constructor(props) {
@@ -37,7 +38,7 @@ export default class BookChapter extends Component {
                         .then(data => {
                             if (data.length >= 1) {
                                 this.setState({chapterList: data,loading: false})
-                            } 
+                            }
                         })
                 }
             })
@@ -46,7 +47,6 @@ export default class BookChapter extends Component {
     _keyExtractor = (item, index) => `key${index}`;
 
     _toRead = (item,index) => {
-        console.log("跳转")
         NavigationUtil.goToPageWithName({
             key: this.props.navigation.state.key,
             navigation: this.props.navigation,
@@ -61,38 +61,52 @@ export default class BookChapter extends Component {
 
     render() {
         const { loading, chapterList } = this.state;
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                backgroundColor: '#F0F8FF',
+            },
+            item: {
+                height: 40,
+                backgroundColor: 'white',
+                justifyContent: 'center',
+                paddingLeft: 40,
+                paddingRight: 10,
+                marginBottom: 1,
+            },
+            text: {
+                width: 300,
+                color: 'rgba(31,36,49,0.56)',
+            },
+            spinner: {
+                position:'absolute',
+                top: height/2 - 18,
+                left: width/2 - 18,
+            },
+        })
         return (
             <View style={styles.container}>
                 <TitleBar type={"BookChapter"} {...this.props}/>
                 {loading
-                    ? <View style={{alignItems:'center',marginTop:200}}><Text>加载中...</Text></View>
+                    ? null
                     : <FlatList
+                        ref={"_flatlist"}
                         data={chapterList}
+                        getItemLayout={(data,index) => ( {length:41,offset:41*index,index})}
                         keyExtractor={this._keyExtractor}
                         renderItem={({item,index}) => <TouchableOpacity onPress={() => this._toRead(item,index)} style={styles.item}>
                             <Text style={styles.text} ellipsizeMode={"tail"} numberOfLines={1}>{item.title}</Text>
                         </TouchableOpacity>}
                     />}
+                <Spinner
+                    style={styles.spinner}
+                    isVisible={this.state.loading}
+                    type={'FadingCircle'}
+                    color={this.props.theme}
+                />
             </View>
         );
     }
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#F0F8FF',
-    },
-    item: {
-        height: 40,
-        backgroundColor: 'white',
-        justifyContent: 'center',
-        paddingLeft: 40,
-        paddingRight: 10,
-        marginBottom: 1,
-    },
-    text: {
-        width: 300,
-        color: 'rgba(31,36,49,0.56)',
-    },
-})
+

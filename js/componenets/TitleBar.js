@@ -144,7 +144,7 @@ export default class TitleBar extends Component{
 
                 {type == "CommentDtail" ? <View style={styles.bookcase}>
                     {this._goBack()}
-                    <Text style={{color:this.props.theme}}>详情</Text>
+                    <Text style={{color:this.props.theme,fontSize:18}}>详情</Text>
                 </View> : null}
 
                 {type == "Mine" ? <View style={styles.mineview}>

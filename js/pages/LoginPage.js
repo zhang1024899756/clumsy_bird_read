@@ -1,23 +1,27 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native';
+import {StyleSheet, Text, View, Image, TextInput, TouchableOpacity, Dimensions} from 'react-native';
 import TitleBar from "../componenets/TitleBar";
 import NavigationUtil from "../navigator/NavigationUtil";
 import URL from "../../serverAPI";
 import Toast from "react-native-easy-toast";
+import Spinner from "react-native-spinkit";
 import DataStore from '../expand/DataStore';
 import actions from "../redux/action";
 import {connect} from "react-redux";
+const {width,height} =  Dimensions.get('window');
 
 class LoginPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            isLoading:false,
             username: '',
             password: '',
         }
     }
     _submitForm = () => {
         if (this.state.username !== '' && this.state.password !== '') {
+            this.setState({isLoading:true})
             fetch(URL.check,this.getOptions({
                 username: this.state.username,
                 password: this.state.password,
@@ -25,12 +29,14 @@ class LoginPage extends Component {
             .then((response) => response.json())
             .then(data => {
                 if (data.success) {
+                    this.setState({isLoading:false})
                     const store = new DataStore();
                     store.saveData("userToken",data.data._id);
                     this.props.onLogIn(data.data);
                     this.props.onInitBookList(data.data._id);
                     this.props.navigation.goBack()
                 }else {
+                    this.setState({isLoading:false})
                     this.refs.toast.show(data.data);
                 }
             })
@@ -99,6 +105,11 @@ class LoginPage extends Component {
                 marginRight: 20,
                 borderRadius: 5,
             },
+            spinner: {
+                position:'absolute',
+                top: height/2 - 18,
+                left: width/2 - 18,
+            },
         })
         return (
             <View style={styles.container}>
@@ -145,12 +156,20 @@ class LoginPage extends Component {
                     opacity={0.8}
                     textStyle={{color:'#fff'}}
                 />
+                <Spinner
+                    style={styles.spinner}
+                    isVisible={this.state.isLoading}
+                    type={'Wave'}
+                    color={this.props.theme}
+                />
             </View>
         );
     }
 }
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+    theme: state.theme.theme,
+});
 
 const mapDispatchToProps = dispatch => ({
     onLogIn: (user) => dispatch(actions.onLogIn(user)),

@@ -7,7 +7,10 @@ export function onRefreshComment() {
         fetch(URL.commentList)
         .then((response) => response.json())
         .then(data => {
-            dispatch({type: Types.COMMENT_REFRESH_SUCCESS,data:data.data})
+            let list = data.data.sort((a,b) => {
+                return a.meta.updateAt > b.meta.updateAt ? -1 : 1;
+            })
+            dispatch({type: Types.COMMENT_REFRESH_SUCCESS,data:list})
         })
         .catch(error => {
             dispatch({

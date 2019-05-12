@@ -9,16 +9,16 @@ import {
     FlatList,
     ScrollView,
     TextInput,
-    KeyboardAvoidingView,
+    KeyboardAvoidingView, Dimensions,
 } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import EvilIcons from "react-native-vector-icons/EvilIcons";
 import TitleBar from "../componenets/TitleBar";
-import actions from "../redux/action";
 import {connect} from "react-redux";
 import NavigationUtil from "../navigator/NavigationUtil";
 import URL from "../../serverAPI";
-
+import Spinner from "react-native-spinkit";
+const {width,height} =  Dimensions.get('window');
 
 
 
@@ -27,6 +27,7 @@ class CommentDtailPage extends Component {
         super(props);
         this.state = {
             loading: true,
+            subLoading:false,
             data: null,
             hasStar:false,
             hasLike:false,
@@ -37,24 +38,13 @@ class CommentDtailPage extends Component {
         }
     }
     componentDidMount() {
-        console.log("this.props.navigation.state.params.data",this.props.navigation.state.params.data)
         this._loadData()
-        // if (this.props.navigation.state.params.data) {
-        //     let imagesArr = [];
-        //     for (let item of this.props.navigation.state.params.data.images) {
-        //         imagesArr.push({url:item})
-        //     }
-        //     this.setState({
-        //         data: this.props.navigation.state.params.data,
-        //         images:imagesArr,
-        //         loading: false,
-        //     })
-        // }
     }
 
 
     _loadData = () => {
         if (this.props.navigation.state.params.data) {
+            this.setState({loading: true})
             fetch(URL.commentDetail + "?id=" + this.props.navigation.state.params.data._id)
             .then((response) => response.json())
             .then(data => {
@@ -66,18 +56,12 @@ class CommentDtailPage extends Component {
         }
     }
 
-/*{
-    cover:"http://bpic.588ku.com/element_origin_min_pic/18/01/12/9b3634950a2c2a899413958c93ebfab5.jpg%21/fwfh/804x804/quality/90/unsharp/true/compress/true",
-    name: "一千古",
-    content: "我觉得高温不会在躺下了，他的结局可能会成为炸弹仁的同事，成为审查官。西陵里说过，有的审查官是会组建自己的势力的。",
-    star: 32,
-    time: "2019-5-4:09:36:23",
-}*/
 
     _submitComment = () => {
         if (this.props.user !== null) {
+            const { books, ...user } = this.props.user
             const _comment = {
-                author: this.props.user,
+                author: user,
                 content: this.state.text,
                 star: 0,
                 time: new Date(),
@@ -85,9 +69,12 @@ class CommentDtailPage extends Component {
             let Comment = this.state.data;
             Comment.comments.unshift(_comment)
             Comment.commentNumber += 1;
+            this.setState({loading: true})
             fetch(URL.commentSave,this.getOptions(Comment))
             .then((response) => response.json())
             .then(data => {
+                this.setState({loading: false})
+                console.log("data.data",data.data)
                 this._loadData()
                 this.setState({
                     showInputView: false,
@@ -182,7 +169,7 @@ class CommentDtailPage extends Component {
             submitButton: {
                 flex:2,
                 height: 50,
-                backgroundColor: '#99aab6',
+                backgroundColor: this.props.theme,
                 borderRadius:10,
                 margin:10,
                 alignItems:'center',
@@ -248,7 +235,7 @@ class CommentDtailPage extends Component {
             },
             title: {
                 fontSize:18,
-                lineHeight:24,
+                lineHeight:28,
             },
             author: {
                 flexDirection: 'row',
@@ -257,9 +244,10 @@ class CommentDtailPage extends Component {
                 marginBottom: 20,
             },
             contentText: {
-                fontSize: 14,
+                fontSize: 16,
                 color: '#363636',
-                lineHeight: 22,
+                lineHeight: 24,
+                marginBottom:10,
             },
             book: {
                 flexDirection: 'row',
@@ -290,13 +278,18 @@ class CommentDtailPage extends Component {
                 fontSize: 16,
                 marginBottom: 10,
             },
+            spinner: {
+                position:'absolute',
+                top: height/2 - 18,
+                left: width/2 - 18,
+            },
         })
         return(
             <View style={styles.container}>
                 <TitleBar type={"CommentDtail"} {...this.props}/>
                 <ScrollView onTouchStart={() => this.touchView()} showsVerticalScrollIndicator={false} >
                     {loading
-                        ? <View style={{alignItems:'center',marginTop:200}}><Text>加载中...</Text></View>
+                        ? null
                         : <View style={styles.content}>
                             <Text style={styles.title}>{data.title}</Text>
                             <View style={styles.author}>
@@ -377,7 +370,15 @@ class CommentDtailPage extends Component {
                             onPress={() => this._submitComment()}
                             style={styles.submitButton}
                         >
-                            <Text style={{color:'white'}}>发 送</Text>
+                            {!this.state.subLoading
+                                ? <Text style={{color:'white'}}>发 送</Text>
+                                :<Spinner
+                                    style={styles.spinner}
+                                    isVisible={this.state.subLoading}
+                                    type={'FadingCircle'}
+                                    color={'white'}
+                                />
+                            }
                         </TouchableOpacity>
                     </KeyboardAvoidingView>
                     : null
@@ -392,6 +393,13 @@ class CommentDtailPage extends Component {
                         <Text style={styles.buttonColor}>{data.star}</Text>
                     </TouchableOpacity>
                 </View> : null}
+
+                <Spinner
+                    style={styles.spinner}
+                    isVisible={this.state.loading}
+                    type={'FadingCircle'}
+                    color={this.props.theme}
+                />
             </View>
         );
     }

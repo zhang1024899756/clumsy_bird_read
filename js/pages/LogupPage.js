@@ -1,16 +1,20 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native';
+import {StyleSheet, Text, View, Image, TextInput, TouchableOpacity, Dimensions} from 'react-native';
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Toast, {DURATION} from 'react-native-easy-toast';
 import TitleBar from "../componenets/TitleBar";
 import URL from "../../serverAPI";
 import NavigationUtil from "../navigator/NavigationUtil";
+import Spinner from "react-native-spinkit";
+import {connect} from "react-redux";
+const {width,height} =  Dimensions.get('window');
 
 
-export default class LogupPage extends Component {
+class LogupPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            isLoading:false,
             hasAllowRules: false,
             hasFinished: false,
             username: '',
@@ -25,10 +29,12 @@ export default class LogupPage extends Component {
 
     _submitForm = () => {
         if (this.state.hasAllowRules && this.state.username !== '' && this.state.password !== '') {
+            this.setState({isLoading:true})
             fetch(URL.repeat,this.getOptions({username: this.state.username}))
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.repeat) {
+                        this.setState({isLoading:false})
                         this.refs.toast.show('用户名已存在!');
                     }else {
                        fetch(URL.logup,this.getOptions({
@@ -37,6 +43,7 @@ export default class LogupPage extends Component {
                        }))
                        .then((response) => response.json())
                        .then(data => {
+                           this.setState({isLoading:false})
                            this.refs.toast.show("注册成功，称号： " + data.data.call);
                            // 定时器跳转
                            this.timer = setTimeout(() => {
@@ -113,12 +120,17 @@ export default class LogupPage extends Component {
                 marginRight: 20,
                 borderRadius: 5,
             },
+            spinner: {
+                position:'absolute',
+                top: height/2 - 18,
+                left: width/2 - 18,
+            },
         })
         return (
             <View style={styles.container}>
                 <TitleBar type={"Logup"} {...this.props}/>
                 <View style={styles.logo}>
-                    <Image source={require('../image/头像1.png')} style={{width:80,height:80}}/>
+                    <Image source={require('../image/logoup.png')} style={{width:80,height:80}}/>
                 </View>
                 <TextInput
                     ref={"username"}
@@ -167,7 +179,21 @@ export default class LogupPage extends Component {
                     opacity={0.8}
                     textStyle={{color:'#fff'}}
                 />
+                <Spinner
+                    style={styles.spinner}
+                    isVisible={this.state.isLoading}
+                    type={'Wave'}
+                    color={this.props.theme}
+                />
             </View>
         );
     }
 }
+
+const mapStateToProps = state => ({
+    theme: state.theme.theme,
+});
+
+
+
+export default connect(mapStateToProps)(LogupPage);

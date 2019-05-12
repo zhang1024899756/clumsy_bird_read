@@ -82,8 +82,6 @@ class BookcasePage extends Component {
                 alignItems: 'center',
                 justifyContent: 'center',
                 opacity: 0.4,
-                position:'absolute',
-                top:0,
             },
         })
         return (
@@ -113,18 +111,13 @@ class BookcasePage extends Component {
                                 <Text ellipsizeMode={"tail"} numberOfLines={1} style={{width: 90}}>{item.title}</Text>
                             </TouchableOpacity>}
                         />
-                        {loading
-                            ? null
-                            : showTip
-                                ? <View style={styles.tips}>
-                                    <Image
-                                        style={{width:360,height:360}}
-                                        source={require('../image/打脸.png')}
-                                    />
-                                    <Text style={{fontSize:20,color: '#505050'}}>空 空 如 也 ~</Text>
-                                </View>
-                                : null
-                        }
+                        {showTip ? <View style={styles.tips}>
+                            <Image
+                                style={{width:360,height:360}}
+                                source={require('../image/the_null_book.png')}
+                            />
+                            <Text style={{fontSize:20,color: '#505050'}}>空 空 如 也 ~</Text>
+                        </View> : null}
                     </ScrollView>
                 }
             </View>

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, Image, View, Text, FlatList, ScrollView, TouchableOpacity } from 'react-native';
+import {StyleSheet, Image, View, Text, FlatList, ScrollView, TouchableOpacity,Dimensions } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
 import QiDian from "../bookstore/QiDian";
@@ -8,8 +8,9 @@ import TitleBar from "../componenets/TitleBar";
 import NavigationUtil from "../navigator/NavigationUtil";
 
 import { connect } from 'react-redux';
+import Spinner from "react-native-spinkit";
 
-//const MainWidth = Dimensions.get('window').width;
+const {width,height} =  Dimensions.get('window');
 
 class DetailPage extends Component {
     constructor(props) {
@@ -48,7 +49,10 @@ class DetailPage extends Component {
         },"BookChapter");
     }
 
+    _toNewChapter = () => {}
+
     _keyExtractor = (item, index) => item.bid;
+
 
     render() {
         const { loading, book } = this.state;
@@ -135,11 +139,16 @@ class DetailPage extends Component {
                 marginBottom: 10,
                 color: this.props.theme,
             },
+            spinner: {
+                position:'absolute',
+                top: height/2 - 18,
+                left: width/2 - 18,
+            },
         })
         return (
             <View style={styles.container}>
                 <TitleBar type={"DetailPage"} {...this.props}/>
-                {loading ? <View style={{alignItems:'center',marginTop:200}}><Text>加载中...</Text></View>
+                {loading ? null
                     : <ScrollView>
                         <View style={styles.bookpaner}>
                             <Image source={{uri: book.cover}} style={styles.bookcover}/>
@@ -164,14 +173,14 @@ class DetailPage extends Component {
                         </View>
 
                         <View>
-                            <TouchableOpacity style={styles.newchapter}>
+                            {false ? <TouchableOpacity onPress={() => this._toNewChapter()} style={styles.newchapter}>
                                 <Text style={{color:this.props.theme}}>最新</Text>
                                 <Text
                                     ellipsizeMode={"tail"}
                                     numberOfLines={1}
                                     style={{color: '#4b535b',width:250,fontSize: 12}}>{book.update}</Text>
                                 <AntDesign name={'right'} size={12} style={styles.icon}/>
-                            </TouchableOpacity>
+                            </TouchableOpacity> : null}
                             <TouchableOpacity onPress={() => this._toChapter(book)} style={styles.chapter}>
                                 <Text style={{color:this.props.theme}}>目录</Text>
                                 <View style={{width:250}}/>
@@ -196,6 +205,13 @@ class DetailPage extends Component {
                             />
                         </View>
                     </ScrollView>}
+
+                <Spinner
+                    style={styles.spinner}
+                    isVisible={this.state.loading}
+                    type={'FadingCircle'}
+                    color={this.props.theme}
+                />
             </View>
         );
     }
@@ -203,6 +219,7 @@ class DetailPage extends Component {
 
 const mapStateToProps = state => ({
     theme: state.theme.theme,
+    user: state.user.user,
 });
 
 export default connect(mapStateToProps)(DetailPage);

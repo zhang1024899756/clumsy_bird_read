@@ -187,7 +187,7 @@ class CommunityPage extends Component {
                     ? <View style={{alignItems:'center',marginTop:200}}><Text>加载中...</Text></View>
                     : <View style={{marginBottom:140}}>
                         <View style={styles.images}>
-                            <Text style={{color:'white',fontSize:30}}>评论积极建设中</Text>
+                            <Text style={{color:'white',fontSize:30}}>欢迎参加评论建设</Text>
                         </View>
                         <FlatList
                             data={refresf.data}
@@ -207,7 +207,7 @@ class CommunityPage extends Component {
                             keyExtractor={this._keyExtractor}
                             renderItem={({item}) => <CommentPanel data={item}   {...this.props}/>}
                             ListFooterComponent={() => <View style={styles.listFooter}>
-                                <Text style={{color:this.props.theme}}>我是有底线的</Text>
+                                <Text style={{color:this.props.theme}}>~ ~ ~</Text>
                             </View>}
                         />
                     </View>

@@ -11,15 +11,15 @@ import {
     Modal, FlatList,
 } from 'react-native';
 import { NavigationActions, StackActions} from 'react-navigation';
-import NavigationUtil from "../navigator/NavigationUtil";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import QiDian from "../bookstore/QiDian";
 import HTMLView from 'react-native-htmlview';
 import Toast from "react-native-easy-toast";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { connect } from 'react-redux';
-var {width} =  Dimensions.get('window');
 import actions from "../redux/action";
+import Spinner from "react-native-spinkit";
+const {width,height} =  Dimensions.get('window');
 
 class ReadPage extends Component {
     constructor(props) {
@@ -313,6 +313,11 @@ class ReadPage extends Component {
                 alignItems:'center',
                 justifyContent: 'center',
             },
+            spinner: {
+                position:'absolute',
+                top: height/2 - 18,
+                left: width/2 - 18,
+            },
         })
         return (
             <View style={styles.container}>
@@ -332,7 +337,7 @@ class ReadPage extends Component {
                 </View>
                 
                 {loading
-                    ? <View style={{alignItems:'center',marginTop:200}}><Text>加载中...</Text></View>
+                    ? null
                     : <ScrollView
                         ref={"content"}
                         style={_style.contentview}
@@ -460,6 +465,13 @@ class ReadPage extends Component {
                     fadeOutDuration={1000}
                     opacity={0.8}
                     textStyle={{color:'#fff'}}
+                />
+
+                <Spinner
+                    style={styles.spinner}
+                    isVisible={this.state.loading}
+                    type={'ThreeBounce'}
+                    color={this.props.theme}
                 />
             </View>
         );

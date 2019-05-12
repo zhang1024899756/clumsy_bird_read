@@ -62,21 +62,21 @@ export default class CommentPanel extends Component{
                         <View style={styles.header}>
                             <View style={styles._row}>
                                 <Image source={{uri:data.author.cover}} style={{width:30,height:30,borderRadius:15}}/>
-                                <Text style={{marginLeft:10,fontSize:12,color:'#291400'}}>{data.author.call}</Text>
+                                <Text style={{marginLeft:10,fontSize:14,color:'#291400'}}>{data.author.call}</Text>
                             </View>
                             {data.author.power == 10
-                                ? <Image source={require('../image/官方置顶印章.png')} style={{width:50,height:50,opacity:0.5}}/>
+                                ? <Image source={require('../image/admin_comment_type.png')} style={{width:50,height:50,opacity:0.5}}/>
                                 : data.commentNumber >= 4
-                                    ? <Image source={require('../image/热门帖子印章.png')} style={{width:50,height:50,opacity:0.5}}/>
+                                    ? <Image source={require('../image/hot_comment.png')} style={{width:50,height:50,opacity:0.5}}/>
                                     : null
                             }
                         </View>
                         <View style={styles.content}>
-                            <Text style={{marginBottom:10,width:250}} ellipsizeMode={"tail"} numberOfLines={1}>{data.title}</Text>
+                            <Text style={{marginBottom:10,width:250,fontSize:16}} ellipsizeMode={"tail"} numberOfLines={1}>{data.title}</Text>
                             <Text
                                 ellipsizeMode={"tail"}
                                 numberOfLines={2}
-                                style={{fontSize:12,color:'#425060',lineHeight:18}}
+                                style={{fontSize:14,color:'#425060',lineHeight:18}}
                             >
                                 {data.content}
                             </Text>
