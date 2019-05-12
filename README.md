@@ -1,7 +1,6 @@
 # 菜鸟阅读APP
+![](https://img.shields.io/badge/Download-v1.1.3-orange.svg)<br>  
 一款手机阅读类react native应用
-## apk包
-[版本 v1.1](https://github.com/zhang1024899756/clumsy_bird_read/blob/v1.1/%E8%8F%9C%E9%B8%9F%E9%98%85%E8%AF%BB.apk?raw=true) 
 ## 功能特性
 * 获取起点排行榜小说
 * 添加小说到书架
