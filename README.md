@@ -1,5 +1,5 @@
 # 菜鸟阅读APP
-![](https://img.shields.io/badge/Download-v1.1.3-orange.svg)<br>  
+[![](https://img.shields.io/badge/Download-v1.1.3-orange.svg)](https://github.com/zhang1024899756/clumsy_bird_read/releases)<br>  
 一款手机阅读类react native应用
 ## 功能特性
 * 获取起点排行榜小说
