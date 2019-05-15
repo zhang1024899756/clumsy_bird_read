@@ -105,6 +105,7 @@ class BookChapter extends Component {
 
 const mapStateToProps = state => ({
     source: state.source.source,
+    theme: state.theme.theme,
 });
 
 export default connect(mapStateToProps)(BookChapter);

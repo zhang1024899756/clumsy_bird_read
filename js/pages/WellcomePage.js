@@ -2,10 +2,14 @@ import React, {Component} from 'react';
 import {Dimensions, Image, StyleSheet, Text, View} from 'react-native';
 import SplashScreen from 'react-native-splash-screen'
 import NavigationUtil from '../navigator/NavigationUtil';
+import actions from "../redux/action";
+import {connect} from "react-redux";
+import QiDian from "../bookstore/QiDian";
 const {width,height} =  Dimensions.get('window');
 
-export default class WellcomePage extends Component {
+class WellcomePage extends Component {
     componentDidMount() {
+        this.props.onSourceChange(new QiDian())
         // 定时器跳转
         this.timer = setTimeout(() => {
             SplashScreen.hide();
@@ -43,3 +47,11 @@ const styles = StyleSheet.create({
     margin: 10,
   },
 });
+
+const mapStateToProps = state => ({});
+
+const mapDispatchToProps = dispatch => ({
+    onSourceChange: (source) => dispatch(actions.onSourceChange(source)),
+});
+
+export default connect(mapStateToProps,mapDispatchToProps)(WellcomePage);

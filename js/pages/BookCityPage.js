@@ -19,13 +19,12 @@ class BookCityPage extends Component{
 
     _store () {
         let store = this.props.source;
-        console.log("render",this.props.source)
         if (!store) {
             store = {
                 data: [],
                 loading: true,
             }
-            this.props.onSourceChange(new QiDian())
+
         }
         return store;
     }
