@@ -4,9 +4,10 @@ import TitleBar from "../componenets/TitleBar";
 import QiDian from "../bookstore/QiDian";
 import NavigationUtil from "../navigator/NavigationUtil";
 import Spinner from "react-native-spinkit";
+import {connect} from "react-redux";
 const {width,height} =  Dimensions.get('window');
 
-export default class BookChapter extends Component {
+class BookChapter extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -28,18 +29,11 @@ export default class BookChapter extends Component {
     }
 
     _loadData(book) {
-        const booksotre = new QiDian();
-        booksotre._getBookChapter(book.href,booksotre.chapter_rule)
+        const booksotre = this.props.source.source;
+        booksotre._getBookChapter(book,booksotre.chapter_rule)
             .then(data => {
                 if (data.length >= 1) {
                     this.setState({chapterList: data,loading: false})
-                } else {
-                    booksotre._ajaxGetChapter(book.bid)
-                        .then(data => {
-                            if (data.length >= 1) {
-                                this.setState({chapterList: data,loading: false})
-                            }
-                        })
                 }
             })
     }
@@ -108,5 +102,11 @@ export default class BookChapter extends Component {
         );
     }
 }
+
+const mapStateToProps = state => ({
+    source: state.source.source,
+});
+
+export default connect(mapStateToProps)(BookChapter);
 
 

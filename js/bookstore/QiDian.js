@@ -3,6 +3,7 @@ import DataStore from '../expand/DataStore';
 
 export default class QiDian {
     constructor() {
+        this.index = 0;
         this.parser = new CheerioParser();
         this.datastore = new DataStore();
         this.panel_url_list = [
@@ -117,11 +118,21 @@ export default class QiDian {
      * @returns {Promise<any>}
      * @private
      */
-    _getBookChapter(url,ruleArr) {
+    _getBookChapter(book,ruleArr) {
         return new Promise((resolve, reject) => {
-            this.parser.parserHtmlWithRule(url+ "#Catalog",ruleArr)
+            this.parser.parserHtmlWithRule(book.href+ "#Catalog",ruleArr)
                 .then(data => {
-                    resolve(this.clearChapter(data))
+                    const clearData = this.clearChapter(data)
+                    if (clearData.length >= 1) {
+                        resolve(clearData)
+                    } else {
+                        this._ajaxGetChapter(book.bid)
+                        .then(data => {
+                            if (data.length >= 1) {
+                                resolve(data)
+                            }
+                        })
+                    }
                 })
                 .catch((error) => {
                     reject(error);

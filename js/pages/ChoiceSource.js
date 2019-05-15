@@ -4,20 +4,25 @@ import {RadioGroup, RadioButton} from 'react-native-flexi-radio-button'
 
 import NavigationUtil from "../navigator/NavigationUtil";
 import AntDesign from "react-native-vector-icons/AntDesign";
+import actions from "../redux/action";
+import {connect} from "react-redux";
+import QiDian from "../bookstore/QiDian";
+import ZongHeng from "../bookstore/ZongHeng";
 
 
-export default class ChoiceSource extends Component {
+class ChoiceSource extends Component {
     constructor(props) {
         super(props);
         this.state = {
             sourceList: [
-                {name:"起点中文网",value:"QIDIAN"},
-                {name:"纵横中文网",value:"ZONGHENG"},
-                {name:"书旗小说网",value:"SHUQI"},
+                {name:"起点中文网",value:"QiDian"},
+                {name:"纵横中文网",value:"ZongHeng"},
             ],
-            selectSource: "QIDIAN"
+            selectSource: "QiDian",
+            selectIndex: this.props.source.source.index,
         }
     }
+
     _goBack() {
         return (<TouchableOpacity
             onPress={() => {
@@ -32,18 +37,69 @@ export default class ChoiceSource extends Component {
     _getSourceItem() {
         let list = new Array();
         for (let item of this.state.sourceList) {
-            list.push(<RadioButton style={styles.radioButton} value={item.value} key={item.value} >
-                <Text>{item.name}</Text>
-            </RadioButton>)
+            list.push(
+                <RadioButton
+                    style={{
+                        height: 50,
+                        paddingLeft:20,
+                        paddingRight:20,
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                    value={item.value}
+                    key={item.value}
+                >
+                    <Text>{item.name}</Text>
+                </RadioButton>
+            )
         }
         return list;
     }
 
 
     _saveChange = () => {
-        
+        if (this.state.selectSource == "QiDian") {
+           this.props.onSourceChange(new QiDian())
+        }else if (this.state.selectSource == "ZongHeng") {
+            this.props.onSourceChange(new ZongHeng()) 
+        }
+        NavigationUtil.goToBack(this.props.navigation);
     }
+
+    _changeItem = (index,value) => {
+        this.setState({selectSource:value,selectIndex:index})
+        console.log("_changeItem",index)
+    }
+
+
+
     render() {
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                backgroundColor: '#F0F8FF',
+            },
+            headerWrap: {
+                paddingTop: Platform.OS === 'ios' ? 40 : 0,
+                backgroundColor: 'white',
+            },
+            header: {
+                height: 50,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingLeft: 10,
+                paddingRight: 10,
+            },
+            saveview: {
+                position: 'absolute',
+                right:20,
+            },
+            radioGroup: {
+                marginTop:10,
+                marginBottom: 10,
+                backgroundColor: 'white',
+            },
+        })
         return (
             <View style={styles.container}>
                 <View style={styles.headerWrap}>
@@ -57,8 +113,8 @@ export default class ChoiceSource extends Component {
                 </View>
 
                 <RadioGroup
-                    selectedIndex={0}
-                    onSelect={(index,value) => this.setState({selectSource:value})}
+                    selectedIndex={this.state.selectIndex}
+                    onSelect={(index,value) => this._changeItem(index,value)}
                     style={styles.radioGroup}
                 >
                     {this._getSourceItem()}
@@ -69,36 +125,16 @@ export default class ChoiceSource extends Component {
     }
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#F0F8FF',
-    },
-    headerWrap: {
-        paddingTop: Platform.OS === 'ios' ? 40 : 0,
-        backgroundColor: 'white',
-    },
-    header: {
-        height: 50,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingLeft: 10,
-        paddingRight: 10,
-    },
-    saveview: {
-        position: 'absolute',
-        right:20,
-    },
-    radioGroup: {
-        marginTop:10,
-        marginBottom: 10,
-        backgroundColor: 'white',
-    },
-    radioButton: {
-        height: 50,
-        paddingLeft:20,
-        paddingRight:20,
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-})
+const mapStateToProps = state => ({
+    source: state.source.source,
+});
+
+const mapDispatchToProps = dispatch => ({
+    onSourceChange: (source) => dispatch(actions.onSourceChange(source)),
+});
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(ChoiceSource);
+

@@ -24,7 +24,7 @@ export default class WellcomePage extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <Image style={{width:1125,height:2436}} source={require('../image/wellcome.png')}/>
+                <Image style={{width:width,height:height}} source={require('../image/wellcome.png')}/>
             </View>
         );
     }

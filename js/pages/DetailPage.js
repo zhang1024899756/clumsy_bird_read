@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {StyleSheet, Image, View, Text, FlatList, ScrollView, TouchableOpacity,Dimensions } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
-import QiDian from "../bookstore/QiDian";
+
 import Entypo from "react-native-vector-icons/Entypo";
 import TitleBar from "../componenets/TitleBar";
 import NavigationUtil from "../navigator/NavigationUtil";
@@ -28,7 +28,8 @@ class DetailPage extends Component {
 
     //导入书籍信息
     _loadData() {
-        const booksotre = new QiDian();
+        const booksotre = this.props.source.source;
+        console.log("_loadData",booksotre)
         booksotre._getBookDetail(this.props.navigation.state.params.book.href)
             .then(data => {
                 let _book = data;
@@ -188,7 +189,7 @@ class DetailPage extends Component {
                             </TouchableOpacity>
                         </View>
 
-                        <View style={{backgroundColor:'white',paddingLeft:5,paddingRight:15,}}>
+                        {book.like_more.length !== 0 ? <View style={{backgroundColor:'white',paddingLeft:5,paddingRight:15,}}>
                             <View style={styles.liketitle}>
                                 <Entypo name={'bookmark'} size={18} style={{color: 'red',marginRight: 10}}/>
                                 <Text style={{color:this.props.theme}}>喜欢这本书的人还喜欢</Text>
@@ -203,7 +204,7 @@ class DetailPage extends Component {
                                     <Text ellipsizeMode={"tail"} numberOfLines={1} style={styles.liketext}>{item.title}</Text>
                                 </View>}
                             />
-                        </View>
+                        </View> : null}
                     </ScrollView>}
 
                 <Spinner
@@ -220,6 +221,7 @@ class DetailPage extends Component {
 const mapStateToProps = state => ({
     theme: state.theme.theme,
     user: state.user.user,
+    source: state.source.source,
 });
 
 export default connect(mapStateToProps)(DetailPage);

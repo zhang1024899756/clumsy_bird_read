@@ -57,7 +57,7 @@ class ReadPage extends Component {
     }
 
     _loadData(chapter) {
-        const booksotre = new QiDian();
+        const booksotre = this.props.source.source;
         booksotre._getChapterContent(chapter.href,booksotre.chapter_content_rule)
             .then(data => {
                 this.setState({
@@ -483,6 +483,7 @@ class ReadPage extends Component {
 const mapStateToProps = state => ({
     theme: state.theme.theme,
     user: state.user.user,
+    source: state.source.source,
 });
 
 const mapDispatchToProps = dispatch => ({

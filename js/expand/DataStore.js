@@ -48,7 +48,7 @@ export default class DataStore {
                         return response.json();
                     } else if (response.headers.map["content-type"] == "text/html") {
                         return response.json();
-                    } else if (response.headers.map["content-type"] == "text/html; charset=utf-8") {
+                    } else if (response.headers.map["content-type"] == "text/html; charset=utf-8" || response.headers.map["content-type"] == "text/html; charset=UTF-8") {
                         return response.text();
                     }
                 }
