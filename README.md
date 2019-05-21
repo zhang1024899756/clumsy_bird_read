@@ -8,7 +8,7 @@
 * 手机应用主题修改
 * 读者登录注册
 ## 部分展示截图
-<img src="https://github.com/zhang1024899756/clumsy_bird_read/blob/master/ShowImage/ShouImage.png" width="150"/>
+<img src="https://github.com/zhang1024899756/clumsy_bird_read/blob/master/ShowImage/ShouImage.png"/>
 
 ## 运行调试
 1. 准备react native 环境
