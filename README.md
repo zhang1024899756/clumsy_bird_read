@@ -7,6 +7,12 @@
 * 社区评论板块
 * 手机应用主题修改
 * 读者登录注册
+## 部分展示截图
+![](https://github.com/zhang1024899756/clumsy_bird_read/blob/master/ShowImage/%E6%AC%A2%E8%BF%8E%E9%A1%B5.png)
+![](https://github.com/zhang1024899756/clumsy_bird_read/blob/master/ShowImage/%E4%B9%A6%E5%9F%8E.png)
+![](https://github.com/zhang1024899756/clumsy_bird_read/blob/master/ShowImage/%E7%99%BB%E5%BD%95%E9%A1%B5.png)
+![](https://github.com/zhang1024899756/clumsy_bird_read/blob/master/ShowImage/%E7%94%A8%E6%88%B7%E4%B9%A6%E6%9E%B6.png)
+
 ## 运行调试
 1. 准备react native 环境
 2. clone项目到本地仓库
